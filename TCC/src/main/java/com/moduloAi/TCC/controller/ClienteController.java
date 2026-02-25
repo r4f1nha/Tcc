@@ -7,6 +7,7 @@ import com.moduloAi.TCC.service.ClienteService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/clientes")
@@ -21,6 +22,11 @@ public class ClienteController {
     @GetMapping("/getAllClients")
     public List<ClienteResponse> list(){
         return clienteService.list();
+    }
+
+    @GetMapping("/getClienteById")
+    public Optional<Cliente> getClienteById(long id){
+        return clienteService.getClienteById(id);
     }
 
     @PostMapping("/create")
