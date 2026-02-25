@@ -1,7 +1,7 @@
 package com.moduloAi.TCC.dto;
 
 public record ClienteResponse(
-        long id,
+        Long id,
         String nome,
         String email,
         String cpf,

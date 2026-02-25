@@ -27,8 +27,14 @@ public class Cliente {
     @Column(name = "telefone", nullable = false, length = 15)
     private String telefone;
 
-    public Cliente(String nome, String email){
+    public Cliente(){
+
+    }
+
+    public Cliente(String nome, String email, String cpf, String telefone){
         this.nome = nome;
         this.email = email;
+        this.cpf = cpf;
+        this.telefone = telefone;
     }
 }
