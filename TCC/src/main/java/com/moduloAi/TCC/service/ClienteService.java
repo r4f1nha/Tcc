@@ -35,6 +35,10 @@ public class ClienteService {
         return clienteRepository.save(cliente);
     }
 
+    public Optional<Cliente> getClienteById(long id){
+        return clienteRepository.findById(id);
+    }
+
     public Cliente update(@RequestBody ClienteResponse clienteResponse){
          Cliente cliente =  clienteRepository.findById(clienteResponse.id())
                  .orElseThrow(() -> new RuntimeException("Id nao encontrado" + clienteResponse.id()));
