@@ -1,0 +1,53 @@
+@use "tailwindcss";
+
+@theme {
+  /* Paleta MecaFlow - Design System */
+  --color-bg-primary: #0f1117;
+  --color-bg-sidebar: #1a1d27;
+  --color-bg-card: #22263a;
+  --color-accent: #4F6EF7;
+  --color-accent-hover: #3d5ae0;
+  --color-success: #22c55e;
+  --color-warning: #eab308;
+  --color-danger: #ef4444;
+  --color-muted: #6b7280;
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #94a3b8;
+
+  /* Tema claro */
+  --color-light-bg-primary: #f8fafc;
+  --color-light-bg-sidebar: #ffffff;
+  --color-light-bg-card: #ffffff;
+  --color-light-text-primary: #0f172a;
+  --color-light-text-secondary: #475569;
+
+  /* Tipografia */
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+/* Reset e base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font-sans);
+}
+
+/* Scrollbar customizada */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-muted);
+  border-radius: 3px;
+}

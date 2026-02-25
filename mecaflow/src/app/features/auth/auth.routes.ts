@@ -1,0 +1,30 @@
+import { Routes } from '@angular/router';
+
+export const AUTH_ROUTES: Routes = [
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./containers/login-page/login-page.component').then(
+        (m) => m.LoginPageComponent,
+      ),
+  },
+  {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./containers/forgot-password-page/forgot-password-page.component').then(
+        (m) => m.ForgotPasswordPageComponent,
+      ),
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () =>
+      import('./containers/reset-password-page/reset-password-page.component').then(
+        (m) => m.ResetPasswordPageComponent,
+      ),
+  },
+  {
+    path: '',
+    redirectTo: 'login',
+    pathMatch: 'full',
+  },
+];
