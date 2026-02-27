@@ -97,6 +97,7 @@ export class SidebarComponent {
       title: 'Gestão',
       items: [
         { label: 'Base de Conhecimento', route: '/knowledge-base', icon: 'fas fa-book' },
+        { label: 'Etiquetas',            route: '/labels',         icon: 'fas fa-tags' },
         { label: 'Automações',           route: '/automations',    icon: 'fas fa-bolt' },
         { label: 'Times',                route: '/teams',          icon: 'fas fa-user-friends' },
       ],

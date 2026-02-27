@@ -679,3 +679,15 @@ ngx-spinner {
 .fade-in-up {
   animation: fadeInUp 0.3s ease-out forwards;
 }
+
+// Modal backdrop (Angular-driven modals)
+.modal-backdrop-custom {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+}
+
+// Automation cards
+.automation-card { transition: box-shadow 0.15s; }
+.automation-card:hover { box-shadow: 0 2px 12px rgba(79, 110, 247, 0.12); }

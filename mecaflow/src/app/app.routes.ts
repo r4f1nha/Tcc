@@ -52,6 +52,11 @@ export const routes: Routes = [
           import('./features/automations/automations.routes').then((m) => m.AUTOMATIONS_ROUTES),
       },
       {
+        path: 'labels',
+        loadChildren: () =>
+          import('./features/labels/labels.routes').then((m) => m.LABELS_ROUTES),
+      },
+      {
         path: 'teams',
         loadChildren: () =>
           import('./features/teams/teams.routes').then((m) => m.TEAMS_ROUTES),
