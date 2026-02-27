@@ -11,109 +11,124 @@ import { SkeletonComponent } from '../../../../shared/components/skeleton/skelet
   imports: [DatePipe, SkeletonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="p-6 space-y-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-bold text-white">Times e Usuários</h1>
-          <p class="text-sm text-slate-400 mt-1">Gerencie equipes e permissões</p>
+    <!-- Cabeçalho -->
+    <div class="row mb-1">
+      <div class="col-12">
+        <div class="content-header d-flex align-items-center justify-content-between">
+          <div>
+            <i class="fas fa-users header-icon"></i>&nbsp;Times e Usuários
+          </div>
+          <button class="btn btn-primary btn-sm">
+            <i class="fas fa-plus mr-1"></i>Novo Usuário
+          </button>
         </div>
-        <button class="px-4 py-2 bg-[#4F6EF7] hover:bg-[#3d5ae0] text-white text-sm font-medium rounded-lg transition-colors">
-          + Novo Usuário
-        </button>
       </div>
+    </div>
 
-      <!-- Tabs -->
-      <div class="flex border-b border-slate-700/50">
-        <button
-          (click)="activeTab.set('users')"
-          [class]="activeTab() === 'users' ? 'text-[#4F6EF7] border-[#4F6EF7]' : 'text-slate-400 border-transparent'"
-          class="px-4 py-3 text-sm font-medium border-b-2 transition-all">
-          Usuários
-        </button>
-        <button
-          (click)="activeTab.set('teams')"
-          [class]="activeTab() === 'teams' ? 'text-[#4F6EF7] border-[#4F6EF7]' : 'text-slate-400 border-transparent'"
-          class="px-4 py-3 text-sm font-medium border-b-2 transition-all">
-          Times
-        </button>
-      </div>
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-3">
+      <li class="nav-item">
+        <a class="nav-link" href="javascript:void(0)"
+          [class.active]="activeTab() === 'users'"
+          (click)="activeTab.set('users')">
+          <i class="fas fa-user mr-1"></i>Usuários
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="javascript:void(0)"
+          [class.active]="activeTab() === 'teams'"
+          (click)="activeTab.set('teams')">
+          <i class="fas fa-users mr-1"></i>Times
+        </a>
+      </li>
+    </ul>
 
-      @if (loading()) {
-        <app-skeleton variant="card" />
-      } @else if (activeTab() === 'users') {
-        <!-- Users Table -->
-        <div class="bg-[#22263a] rounded-xl border border-slate-700/50 overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="border-b border-slate-700/50 text-xs text-slate-400 uppercase tracking-wider">
-                <th class="px-4 py-3 text-left font-medium">Nome</th>
-                <th class="px-4 py-3 text-left font-medium">Email</th>
-                <th class="px-4 py-3 text-left font-medium">Role</th>
-                <th class="px-4 py-3 text-left font-medium">Status</th>
-                <th class="px-4 py-3 text-left font-medium">Último acesso</th>
-                <th class="px-4 py-3 text-left font-medium">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (user of users(); track user.id) {
-                <tr class="border-b border-slate-700/30 hover:bg-[#1a1d27] transition-colors">
-                  <td class="px-4 py-3">
-                    <div class="flex items-center gap-3">
-                      <div class="w-8 h-8 rounded-full bg-[#4F6EF7]/20 flex items-center justify-center text-xs font-bold text-[#4F6EF7]">
-                        {{ user.name.charAt(0).toUpperCase() }}
-                      </div>
-                      <span class="text-white font-medium">{{ user.name }}</span>
-                    </div>
-                  </td>
-                  <td class="px-4 py-3 text-slate-400 text-xs">{{ user.email }}</td>
-                  <td class="px-4 py-3">
-                    <span class="text-xs px-2 py-0.5 rounded-full" [class]="getRoleBadge(user.role)">
-                      {{ getRoleLabel(user.role) }}
-                    </span>
-                  </td>
-                  <td class="px-4 py-3">
-                    <span class="flex items-center gap-1.5 text-xs">
-                      <div class="w-2 h-2 rounded-full"
-                        [class]="user.status === MemberStatus.ACTIVE ? 'bg-emerald-500' : 'bg-slate-500'"></div>
-                      {{ user.status === MemberStatus.ACTIVE ? 'Ativo' : 'Inativo' }}
-                    </span>
-                  </td>
-                  <td class="px-4 py-3 text-slate-500 text-xs font-mono">
-                    {{ user.lastAccessAt ? (user.lastAccessAt | date:'dd/MM/yyyy HH:mm') : 'Nunca' }}
-                  </td>
-                  <td class="px-4 py-3">
-                    <div class="flex gap-2">
-                      <button class="text-xs text-[#4F6EF7] hover:text-[#3d5ae0]">Editar</button>
-                      @if (user.status === MemberStatus.ACTIVE) {
-                        <button (click)="onDeactivateUser(user.id)" class="text-xs text-red-400 hover:text-red-300">Desativar</button>
-                      } @else {
-                        <button (click)="onActivateUser(user.id)" class="text-xs text-emerald-400 hover:text-emerald-300">Ativar</button>
-                      }
-                    </div>
-                  </td>
+    @if (loading()) {
+      <app-skeleton variant="card" />
+    } @else if (activeTab() === 'users') {
+      <!-- Users Table -->
+      <div class="card">
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover table-sm mb-0">
+              <thead class="thead-light">
+                <tr>
+                  <th>Nome</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Último acesso</th>
+                  <th>Ações</th>
                 </tr>
-              }
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                @for (user of users(); track user.id) {
+                  <tr>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center mr-2 font-weight-700"
+                          style="width:32px;height:32px;background:rgba(79,110,247,0.15);color:#4F6EF7;font-size:0.75rem;flex-shrink:0;">
+                          {{ user.name.charAt(0).toUpperCase() }}
+                        </div>
+                        <span class="font-weight-600">{{ user.name }}</span>
+                      </div>
+                    </td>
+                    <td class="text-muted" style="font-size:0.8rem;">{{ user.email }}</td>
+                    <td>
+                      <span class="badge badge-pill" [class]="getRoleBadge(user.role)">
+                        {{ getRoleLabel(user.role) }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="d-flex align-items-center" style="font-size:0.8rem;">
+                        <span class="rounded-circle mr-1" style="width:8px;height:8px;display:inline-block;"
+                          [style.background]="user.status === MemberStatus.ACTIVE ? '#28C76F' : '#6c757d'"></span>
+                        {{ user.status === MemberStatus.ACTIVE ? 'Ativo' : 'Inativo' }}
+                      </span>
+                    </td>
+                    <td class="text-muted" style="font-size:0.8rem;">
+                      {{ user.lastAccessAt ? (user.lastAccessAt | date:'dd/MM/yyyy HH:mm') : 'Nunca' }}
+                    </td>
+                    <td>
+                      <button class="btn btn-link btn-sm text-primary p-0 mr-2">Editar</button>
+                      @if (user.status === MemberStatus.ACTIVE) {
+                        <button class="btn btn-link btn-sm text-danger p-0" (click)="onDeactivateUser(user.id)">Desativar</button>
+                      } @else {
+                        <button class="btn btn-link btn-sm text-success p-0" (click)="onActivateUser(user.id)">Ativar</button>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
         </div>
-      } @else {
-        <!-- Teams Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          @for (team of teams(); track team.id) {
-            <div class="bg-[#22263a] rounded-xl border border-slate-700/50 p-5 hover:border-[#4F6EF7]/30 transition-all">
-              <h3 class="text-sm font-semibold text-white mb-1">{{ team.name }}</h3>
-              <p class="text-xs text-slate-400 mb-3">{{ team.description }}</p>
-              <div class="flex items-center justify-between">
-                <span class="text-xs text-slate-500">{{ team.memberCount }} membro(s)</span>
-                <button class="text-xs text-[#4F6EF7] hover:text-[#3d5ae0]">Gerenciar</button>
+      </div>
+    } @else {
+      <!-- Teams Grid -->
+      <div class="row">
+        @for (team of teams(); track team.id) {
+          <div class="col-lg-4 col-md-6 mb-3">
+            <div class="card h-100">
+              <div class="card-body">
+                <h6 class="card-title font-weight-600">{{ team.name }}</h6>
+                <p class="card-text text-muted" style="font-size:0.8rem;">{{ team.description }}</p>
+              </div>
+              <div class="card-footer d-flex align-items-center justify-content-between py-2">
+                <small class="text-muted">{{ team.memberCount }} membro(s)</small>
+                <button class="btn btn-link btn-sm text-primary p-0">Gerenciar</button>
               </div>
             </div>
-          } @empty {
-            <div class="col-span-3 text-center py-12 text-slate-500 text-sm">Nenhum time criado</div>
-          }
-        </div>
-      }
-    </div>
+          </div>
+        } @empty {
+          <div class="col-12">
+            <div class="card">
+              <div class="card-body text-center text-muted py-5">Nenhum time criado</div>
+            </div>
+          </div>
+        }
+      </div>
+    }
   `,
 })
 export class TeamsPageComponent implements OnInit {
@@ -156,9 +171,9 @@ export class TeamsPageComponent implements OnInit {
 
   getRoleBadge(role: UserRole): string {
     const map: Record<UserRole, string> = {
-      [UserRole.OWNER]: 'bg-purple-500/10 text-purple-400',
-      [UserRole.ADMIN]: 'bg-[#4F6EF7]/10 text-[#4F6EF7]',
-      [UserRole.AGENT]: 'bg-slate-500/10 text-slate-400',
+      [UserRole.OWNER]: 'badge-secondary',
+      [UserRole.ADMIN]: 'badge-primary',
+      [UserRole.AGENT]: 'badge-light',
     };
     return map[role];
   }

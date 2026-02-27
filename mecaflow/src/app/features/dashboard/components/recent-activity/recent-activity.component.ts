@@ -1,33 +1,42 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { NgClass } from '@angular/common';
 import { ActivityItem } from '../../models/dashboard.model';
 import { TimeAgoPipe } from '../../../../shared/pipes/time-ago.pipe';
 
 @Component({
   selector: 'app-recent-activity',
   standalone: true,
-  imports: [TimeAgoPipe],
+  imports: [TimeAgoPipe, NgClass],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="bg-[#22263a] rounded-xl border border-slate-700/50 p-5">
-      <h3 class="text-white font-semibold mb-4">Atividades recentes</h3>
-      <div class="space-y-4">
-        @for (activity of activities(); track activity.id) {
-          <div class="flex items-start gap-3">
-            <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm shrink-0"
-              [class]="getActivityColor(activity.type)">
-              {{ getActivityIcon(activity.type) }}
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm text-white">{{ activity.title }}</p>
-              <p class="text-xs text-slate-400 truncate">{{ activity.description }}</p>
-            </div>
-            <span class="text-xs text-slate-500 font-mono shrink-0">
-              {{ activity.timestamp | timeAgo }}
-            </span>
-          </div>
-        } @empty {
-          <p class="text-sm text-slate-500 text-center py-4">Nenhuma atividade recente</p>
-        }
+    <div class="card h-100">
+      <div class="card-header">
+        <h6 class="card-title">
+          <i class="fas fa-history"></i> Atividades Recentes
+        </h6>
+      </div>
+      <div class="card-body p-0">
+        <ul class="list-group list-group-flush">
+          @for (activity of activities(); track activity.id) {
+            <li class="list-group-item d-flex align-items-start py-3">
+              <div class="mr-3 mt-1">
+                <span class="badge badge-pill" [ngClass]="getActivityBadge(activity.type)" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;">
+                  <i class="fas" [ngClass]="getActivityIcon(activity.type)" style="font-size:12px;"></i>
+                </span>
+              </div>
+              <div class="flex-grow-1 min-w-0">
+                <p class="mb-0 font-weight-600" style="font-size:0.85rem;">{{ activity.title }}</p>
+                <small class="text-muted">{{ activity.description }}</small>
+              </div>
+              <small class="text-muted ml-2 text-nowrap">{{ activity.timestamp | timeAgo }}</small>
+            </li>
+          } @empty {
+            <li class="list-group-item text-center py-4 text-muted">
+              <i class="fas fa-inbox mb-2 d-block" style="font-size:1.5rem;opacity:0.4;"></i>
+              Nenhuma atividade recente
+            </li>
+          }
+        </ul>
       </div>
     </div>
   `,
@@ -35,25 +44,25 @@ import { TimeAgoPipe } from '../../../../shared/pipes/time-ago.pipe';
 export class RecentActivityComponent {
   readonly activities = input.required<ReadonlyArray<ActivityItem>>();
 
-  getActivityIcon(type: ActivityItem['type']): string {
-    const icons: Record<ActivityItem['type'], string> = {
-      order_created: '🔧',
-      order_completed: '✅',
-      client_added: '👤',
-      payment_received: '💰',
-      status_changed: '🔄',
+  getActivityBadge(type: ActivityItem['type']): string {
+    const badges: Record<ActivityItem['type'], string> = {
+      order_created:    'badge-primary',
+      order_completed:  'badge-success',
+      client_added:     'badge-info',
+      payment_received: 'badge-warning',
+      status_changed:   'badge-secondary',
     };
-    return icons[type];
+    return badges[type];
   }
 
-  getActivityColor(type: ActivityItem['type']): string {
-    const colors: Record<ActivityItem['type'], string> = {
-      order_created: 'bg-blue-500/20',
-      order_completed: 'bg-emerald-500/20',
-      client_added: 'bg-purple-500/20',
-      payment_received: 'bg-amber-500/20',
-      status_changed: 'bg-slate-500/20',
+  getActivityIcon(type: ActivityItem['type']): string {
+    const icons: Record<ActivityItem['type'], string> = {
+      order_created:    'fa-tools',
+      order_completed:  'fa-check',
+      client_added:     'fa-user-plus',
+      payment_received: 'fa-dollar-sign',
+      status_changed:   'fa-sync',
     };
-    return colors[type];
+    return icons[type];
   }
 }

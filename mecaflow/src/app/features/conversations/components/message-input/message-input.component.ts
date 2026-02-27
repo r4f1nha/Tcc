@@ -14,31 +14,29 @@ import { SendMessagePayload, MessageType } from '../../models/conversation.model
   imports: [ReactiveFormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="border-t border-slate-700/50 p-3 bg-[#1a1d27]">
+    <div class="border-top p-2" style="background:#f8f9fa;">
       @if (disabled()) {
-        <div class="text-center text-sm text-slate-500 py-2">
+        <div class="text-center text-muted py-2" style="font-size:0.85rem;">
           Esta conversa está atribuída a outro agente
         </div>
       } @else {
-        <form [formGroup]="messageForm" (ngSubmit)="onSend()" class="flex items-end gap-2">
-          <div class="flex-1 relative">
+        <form [formGroup]="messageForm" (ngSubmit)="onSend()">
+          <div class="input-group input-group-sm">
             <textarea
               formControlName="content"
               placeholder="Digite sua mensagem..."
               rows="1"
               (keydown.enter)="onEnterPress($event)"
               (input)="onTyping()"
-              class="w-full px-4 py-2.5 bg-[#22263a] border border-slate-600/50 rounded-xl text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#4F6EF7] resize-none"
+              class="form-control"
+              style="resize:none;"
             ></textarea>
+            <div class="input-group-append">
+              <button type="submit" class="btn btn-primary" [disabled]="messageForm.invalid">
+                <i class="fas fa-paper-plane"></i>
+              </button>
+            </div>
           </div>
-          <button
-            type="submit"
-            [disabled]="messageForm.invalid"
-            class="p-2.5 bg-[#4F6EF7] hover:bg-[#3d5ae0] rounded-xl text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
-            </svg>
-          </button>
         </form>
       }
     </div>

@@ -1,4 +1,4 @@
-import { effect, Injectable, signal } from '@angular/core';
+import { computed, effect, Injectable, signal } from '@angular/core';
 
 export enum Theme {
   LIGHT = 'light',
@@ -10,6 +10,7 @@ const THEME_STORAGE_KEY = 'mecaflow-theme';
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
   readonly currentTheme = signal<Theme>(this.loadPersistedTheme());
+  readonly isDark = computed(() => this.currentTheme() === Theme.DARK);
 
   constructor() {
     effect(() => {

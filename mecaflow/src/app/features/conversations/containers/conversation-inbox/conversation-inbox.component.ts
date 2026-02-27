@@ -26,16 +26,26 @@ import { SkeletonComponent } from '../../../../shared/components/skeleton/skelet
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="flex h-full">
-      <!-- Sidebar - Lista de conversas -->
-      <div class="w-80 lg:w-96 border-r border-slate-700/50 flex flex-col bg-[#0f1117]">
-        <!-- Search -->
-        <div class="p-3 border-b border-slate-700/50">
-          <input
-            type="text"
-            placeholder="Buscar conversas..."
-            class="w-full px-3 py-2 bg-[#1a1d27] border border-slate-600/50 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#4F6EF7]"
-          />
+    <!-- Cabeçalho -->
+    <div class="row mb-1">
+      <div class="col-12">
+        <div class="content-header">
+          <i class="fas fa-comments header-icon"></i>&nbsp;Conversas
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex border rounded" style="height: calc(100vh - 180px); min-height: 400px; overflow: hidden; background: #fff;">
+      <!-- Lista de conversas -->
+      <div class="border-right bg-white d-flex flex-column" style="width:320px; min-width:280px; flex-shrink:0;">
+        <!-- Pesquisa -->
+        <div class="p-2 border-bottom">
+          <div class="input-group input-group-sm">
+            <div class="input-group-prepend">
+              <span class="input-group-text"><i class="fas fa-search"></i></span>
+            </div>
+            <input type="text" class="form-control" placeholder="Buscar conversas..." />
+          </div>
         </div>
 
         <!-- Tabs -->
@@ -45,8 +55,8 @@ import { SkeletonComponent } from '../../../../shared/components/skeleton/skelet
           (tabChanged)="onTabChanged($event)"
         />
 
-        <!-- List -->
-        <div class="flex-1 overflow-y-auto">
+        <!-- Lista -->
+        <div class="flex-grow-1 overflow-auto">
           @if (loading()) {
             @for (i of [1,2,3,4,5]; track i) {
               <div class="p-3">
@@ -61,26 +71,23 @@ import { SkeletonComponent } from '../../../../shared/components/skeleton/skelet
                 (selected)="onSelectConversation($event)"
               />
             } @empty {
-              <div class="flex flex-col items-center justify-center h-full p-6 text-center">
-                <p class="text-slate-500 text-sm">Nenhuma conversa nesta aba</p>
+              <div class="d-flex flex-column align-items-center justify-content-center h-100 p-4 text-muted text-center">
+                <i class="fas fa-inbox mb-3" style="font-size:2rem;opacity:0.3;"></i>
+                <p class="mb-0" style="font-size:0.85rem;">Nenhuma conversa nesta aba</p>
               </div>
             }
           }
         </div>
       </div>
 
-      <!-- Chat Area -->
-      <div class="flex-1 flex flex-col">
+      <!-- Área do chat -->
+      <div class="flex-grow-1 d-flex flex-column">
         @if (selectedConversationId()) {
           <app-conversation-detail />
         } @else {
-          <div class="flex-1 flex items-center justify-center bg-[#0f1117]">
-            <div class="text-center">
-              <svg class="w-16 h-16 text-slate-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-              </svg>
-              <p class="text-slate-500 text-sm">Selecione uma conversa para começar</p>
-            </div>
+          <div class="d-flex flex-column align-items-center justify-content-center h-100 text-muted">
+            <i class="fas fa-comments mb-3" style="font-size:3rem;opacity:0.2;"></i>
+            <p style="font-size:0.9rem;">Selecione uma conversa para começar</p>
           </div>
         }
       </div>

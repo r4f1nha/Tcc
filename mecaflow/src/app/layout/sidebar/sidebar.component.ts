@@ -1,96 +1,111 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { NgClass } from '@angular/common';
 import { ThemeService } from '../../core/services/theme.service';
-import { Theme } from '../../core/services/theme.service';
+import { AuthService } from '../../core/auth/services/auth.service';
 
 interface NavItem {
   readonly label: string;
   readonly route: string;
   readonly icon: string;
-  readonly roles?: ReadonlyArray<string>;
+  readonly badge?: string;
+}
+
+interface NavSection {
+  readonly title: string;
+  readonly items: ReadonlyArray<NavItem>;
 }
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, NgClass],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <aside
-      class="h-screen flex flex-col bg-[#1a1d27] border-r border-slate-700/50 transition-all duration-300"
-      [class]="collapsed() ? 'w-16' : 'w-64'">
+    <div class="app-sidebar" [ngClass]="{ 'sidebar-sm': collapsed() }">
 
-      <!-- Logo -->
-      <div class="flex items-center justify-between px-4 h-16 border-b border-slate-700/50">
-        @if (!collapsed()) {
-          <h1 class="text-lg font-bold text-white">
-            <span class="text-[#4F6EF7]">Meca</span>Flow
-          </h1>
-        }
-        <button
-          (click)="collapsed.set(!collapsed())"
-          class="p-1.5 text-slate-400 hover:text-white hover:bg-[#22263a] rounded-lg transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            @if (collapsed()) {
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
-            } @else {
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
-            }
-          </svg>
+      <!-- Header / Logo -->
+      <div class="sidebar-header">
+        <a class="logo-wrapper" routerLink="/dashboard">
+          <div class="logo-icon">
+            <i class="fas fa-cog"></i>
+          </div>
+          <span class="logo-text sidebar-label">MecaFlow</span>
+        </a>
+        <button class="sidebar-toggle" (click)="collapsed.set(!collapsed())" title="Recolher menu">
+          <i class="fas" [ngClass]="collapsed() ? 'fa-bars' : 'fa-times'"></i>
         </button>
       </div>
 
-      <!-- Navigation -->
-      <nav class="flex-1 py-4 space-y-1 px-2 overflow-y-auto">
-        @for (item of navItems; track item.route) {
-          <a
-            [routerLink]="item.route"
-            routerLinkActive="bg-[#4F6EF7]/10 text-[#4F6EF7]"
-            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-[#22263a] transition-all">
-            <span class="text-lg shrink-0 w-6 text-center">{{ item.icon }}</span>
-            @if (!collapsed()) {
-              <span>{{ item.label }}</span>
-            }
-          </a>
+      <!-- Navegação -->
+      <nav class="sidebar-nav">
+        @for (section of sections; track section.title) {
+          <div class="navigation-header">{{ section.title }}</div>
+          @for (item of section.items; track item.route) {
+            <div class="menu-item">
+              <a
+                [routerLink]="item.route"
+                routerLinkActive="active"
+                [title]="collapsed() ? item.label : ''">
+                <i class="{{ item.icon }}"></i>
+                <span class="sidebar-label">{{ item.label }}</span>
+                @if (item.badge) {
+                  <span class="badge badge-pill badge-primary sidebar-label">{{ item.badge }}</span>
+                }
+              </a>
+            </div>
+          }
         }
       </nav>
 
-      <!-- Footer -->
-      <div class="p-3 border-t border-slate-700/50">
-        <button
-          (click)="toggleTheme()"
-          class="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-[#22263a] transition-all">
-          <span class="text-lg shrink-0 w-6 text-center">{{ isDark() ? '☀️' : '🌙' }}</span>
-          @if (!collapsed()) {
-            <span>{{ isDark() ? 'Tema claro' : 'Tema escuro' }}</span>
-          }
-        </button>
+      <!-- Rodapé do sidebar -->
+      <div class="sidebar-footer">
+        @if (user(); as u) {
+          <div class="d-flex align-items-center gap-2 px-2 py-1">
+            <div class="avatar" style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#4F6EF7,#7b5ea7);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px;flex-shrink:0;">
+              {{ u.name.charAt(0).toUpperCase() }}
+            </div>
+            <div class="sidebar-label" style="overflow:hidden;">
+              <div style="font-size:0.8rem;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ u.name }}</div>
+              <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);">{{ u.role }}</div>
+            </div>
+          </div>
+        }
       </div>
-    </aside>
+    </div>
   `,
 })
 export class SidebarComponent {
   private readonly themeService = inject(ThemeService);
+  private readonly authService = inject(AuthService);
 
   readonly collapsed = signal(false);
+  readonly user = this.authService.user;
 
-  readonly navItems: ReadonlyArray<NavItem> = [
-    { label: 'Dashboard', route: '/dashboard', icon: '📊' },
-    { label: 'Conversas', route: '/conversations', icon: '💬' },
-    { label: 'Leads', route: '/leads', icon: '👥' },
-    { label: 'Agenda', route: '/appointments', icon: '📅' },
-    { label: 'Kanban', route: '/kanban', icon: '📋' },
-    { label: 'Base de Conhecimento', route: '/knowledge-base', icon: '📚' },
-    { label: 'Automações', route: '/automations', icon: '⚡' },
-    { label: 'Times', route: '/teams', icon: '🏢' },
-    { label: 'Configurações', route: '/settings', icon: '⚙️' },
+  readonly sections: ReadonlyArray<NavSection> = [
+    {
+      title: 'CRM',
+      items: [
+        { label: 'Dashboard',   route: '/dashboard',     icon: 'fas fa-tachometer-alt' },
+        { label: 'Conversas',   route: '/conversations', icon: 'fas fa-comments', badge: '3' },
+        { label: 'Leads',       route: '/leads',         icon: 'fas fa-users' },
+        { label: 'Kanban',      route: '/kanban',        icon: 'fas fa-columns' },
+        { label: 'Agenda',      route: '/appointments',  icon: 'fas fa-calendar-alt' },
+      ],
+    },
+    {
+      title: 'Gestão',
+      items: [
+        { label: 'Base de Conhecimento', route: '/knowledge-base', icon: 'fas fa-book' },
+        { label: 'Automações',           route: '/automations',    icon: 'fas fa-bolt' },
+        { label: 'Times',                route: '/teams',          icon: 'fas fa-user-friends' },
+      ],
+    },
+    {
+      title: 'Sistema',
+      items: [
+        { label: 'Configurações', route: '/settings', icon: 'fas fa-cog' },
+      ],
+    },
   ];
-
-  isDark(): boolean {
-    return this.themeService.currentTheme() === Theme.DARK;
-  }
-
-  toggleTheme(): void {
-    this.themeService.toggleTheme();
-  }
 }

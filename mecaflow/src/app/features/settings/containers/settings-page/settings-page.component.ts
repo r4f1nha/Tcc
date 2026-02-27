@@ -10,64 +10,84 @@ import { SkeletonComponent } from '../../../../shared/components/skeleton/skelet
   imports: [ReactiveFormsModule, SkeletonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="p-6 space-y-6 max-w-3xl">
-      <div>
-        <h1 class="text-2xl font-bold text-white">Configurações</h1>
-        <p class="text-sm text-slate-400 mt-1">Configurações da oficina</p>
+    <!-- Cabeçalho -->
+    <div class="row mb-1">
+      <div class="col-12">
+        <div class="content-header">
+          <i class="fas fa-cog header-icon"></i>&nbsp;Configurações
+        </div>
       </div>
+    </div>
 
-      @if (loading()) {
-        <app-skeleton variant="card" />
-      } @else {
-        <form [formGroup]="form" (ngSubmit)="onSave()" class="space-y-6">
-          <!-- Workshop Info -->
-          <div class="bg-[#22263a] rounded-xl border border-slate-700/50 p-6 space-y-4">
-            <h2 class="text-sm font-semibold text-white">Dados da Oficina</h2>
+    <div class="row">
+      <div class="col-lg-8 col-xl-6">
+        @if (loading()) {
+          <app-skeleton variant="card" />
+        } @else {
+          <form [formGroup]="form" (ngSubmit)="onSave()">
+            <!-- Workshop Info -->
+            <div class="card mb-3">
+              <div class="card-header">
+                <h6 class="card-title mb-0"><i class="fas fa-store mr-2"></i>Dados da Oficina</h6>
+              </div>
+              <div class="card-body">
+                <div class="form-group">
+                  <label class="font-weight-600" style="font-size:0.85rem;">Nome da oficina</label>
+                  <input formControlName="workshopName" type="text" class="form-control form-control-sm"
+                    placeholder="Nome da sua oficina" />
+                </div>
 
-            <div>
-              <label class="block text-xs text-slate-400 mb-1">Nome da oficina</label>
-              <input formControlName="workshopName"
-                class="w-full px-3 py-2 bg-[#1a1d27] border border-slate-600/50 rounded-lg text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#4F6EF7]" />
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="font-weight-600" style="font-size:0.85rem;">Telefone</label>
+                      <input formControlName="phone" type="text" class="form-control form-control-sm"
+                        placeholder="(00) 00000-0000" />
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="font-weight-600" style="font-size:0.85rem;">Endereço</label>
+                      <input formControlName="address" type="text" class="form-control form-control-sm"
+                        placeholder="Endereço completo" />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label class="font-weight-600" style="font-size:0.85rem;">Início expediente</label>
+                      <input formControlName="workingHoursStart" type="time" class="form-control form-control-sm" />
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label class="font-weight-600" style="font-size:0.85rem;">Fim expediente</label>
+                      <input formControlName="workingHoursEnd" type="time" class="form-control form-control-sm" />
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label class="font-weight-600" style="font-size:0.85rem;">Duração do slot (min)</label>
+                      <input formControlName="slotDurationMinutes" type="number" class="form-control form-control-sm"
+                        min="15" />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs text-slate-400 mb-1">Telefone</label>
-                <input formControlName="phone"
-                  class="w-full px-3 py-2 bg-[#1a1d27] border border-slate-600/50 rounded-lg text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#4F6EF7]" />
-              </div>
-              <div>
-                <label class="block text-xs text-slate-400 mb-1">Endereço</label>
-                <input formControlName="address"
-                  class="w-full px-3 py-2 bg-[#1a1d27] border border-slate-600/50 rounded-lg text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#4F6EF7]" />
-              </div>
-            </div>
-
-            <div class="grid grid-cols-3 gap-4">
-              <div>
-                <label class="block text-xs text-slate-400 mb-1">Início expediente</label>
-                <input formControlName="workingHoursStart" type="time"
-                  class="w-full px-3 py-2 bg-[#1a1d27] border border-slate-600/50 rounded-lg text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#4F6EF7]" />
-              </div>
-              <div>
-                <label class="block text-xs text-slate-400 mb-1">Fim expediente</label>
-                <input formControlName="workingHoursEnd" type="time"
-                  class="w-full px-3 py-2 bg-[#1a1d27] border border-slate-600/50 rounded-lg text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#4F6EF7]" />
-              </div>
-              <div>
-                <label class="block text-xs text-slate-400 mb-1">Duração do slot (min)</label>
-                <input formControlName="slotDurationMinutes" type="number"
-                  class="w-full px-3 py-2 bg-[#1a1d27] border border-slate-600/50 rounded-lg text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#4F6EF7]" />
-              </div>
-            </div>
-          </div>
-
-          <button type="submit" [disabled]="saving() || form.invalid"
-            class="px-6 py-2.5 bg-[#4F6EF7] hover:bg-[#3d5ae0] text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50">
-            {{ saving() ? 'Salvando...' : 'Salvar configurações' }}
-          </button>
-        </form>
-      }
+            <button type="submit" class="btn btn-primary" [disabled]="saving() || form.invalid">
+              @if (saving()) {
+                <span class="spinner-border spinner-border-sm mr-1" role="status"></span>Salvando...
+              } @else {
+                <i class="fas fa-save mr-1"></i>Salvar configurações
+              }
+            </button>
+          </form>
+        }
+      </div>
     </div>
   `,
 })

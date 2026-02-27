@@ -8,57 +8,46 @@ import { Message, MessageType } from '../../models/conversation.model';
   imports: [DatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div
-      class="flex mb-3"
-      [class]="message().isFromLead ? 'justify-start' : 'justify-end'">
-      <div
-        class="max-w-[75%] rounded-2xl px-4 py-2.5"
-        [class]="message().isFromLead
-          ? 'bg-[#1a1d27] text-white rounded-bl-sm'
-          : 'bg-[#4F6EF7] text-white rounded-br-sm'">
+    <div class="d-flex mb-3" [class.justify-content-end]="!message().isFromLead">
+      <div class="message-bubble"
+        [class.bubble-incoming]="message().isFromLead"
+        [class.bubble-outgoing]="!message().isFromLead">
 
         @if (message().isFromLead) {
-          <p class="text-xs font-medium text-slate-400 mb-1">{{ message().senderName }}</p>
+          <p class="mb-1 font-weight-600" style="font-size:0.7rem;opacity:0.7;">{{ message().senderName }}</p>
         }
 
         @switch (message().type) {
           @case (MessageType.IMAGE) {
-            <img
-              [src]="message().mediaUrl"
-              [alt]="'Imagem de ' + message().senderName"
-              class="rounded-lg max-w-full h-auto mb-1"
-              loading="lazy"
-            />
+            <img [src]="message().mediaUrl" [alt]="'Imagem de ' + message().senderName"
+              class="img-fluid rounded mb-1" style="max-width:200px;" loading="lazy" />
           }
           @case (MessageType.AUDIO) {
-            <audio controls class="max-w-full">
+            <audio controls style="max-width:220px;">
               <source [src]="message().mediaUrl" />
             </audio>
           }
           @case (MessageType.DOCUMENT) {
-            <a
-              [href]="message().mediaUrl"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="flex items-center gap-2 text-sm underline">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/>
-              </svg>
-              Documento
+            <a [href]="message().mediaUrl" target="_blank" rel="noopener noreferrer" class="d-flex align-items-center gap-1">
+              <i class="fas fa-file-alt"></i> Documento
             </a>
           }
           @default {
-            <p class="text-sm whitespace-pre-wrap break-words">{{ message().content }}</p>
+            <p class="mb-0" style="font-size:0.85rem;white-space:pre-wrap;word-break:break-word;">{{ message().content }}</p>
           }
         }
 
-        <p class="text-[10px] mt-1 font-mono"
-          [class]="message().isFromLead ? 'text-slate-500' : 'text-blue-200'">
+        <small class="d-block mt-1 text-right" style="font-size:0.65rem;opacity:0.65;">
           {{ message().createdAt | date:'HH:mm' }}
-        </p>
+        </small>
       </div>
     </div>
   `,
+  styles: [`
+    .message-bubble { max-width: 75%; padding: 0.5rem 0.9rem; border-radius: 12px; }
+    .bubble-incoming { background: #f0f2f5; color: #333; border-bottom-left-radius: 4px; }
+    .bubble-outgoing { background: #4F6EF7; color: #fff; border-bottom-right-radius: 4px; }
+  `],
 })
 export class MessageBubbleComponent {
   readonly message = input.required<Message>();

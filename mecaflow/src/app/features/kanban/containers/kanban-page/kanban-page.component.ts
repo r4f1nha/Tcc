@@ -24,130 +24,139 @@ import { SkeletonComponent } from '../../../../shared/components/skeleton/skelet
   imports: [DragDropModule, DatePipe, CurrencyPipe, SkeletonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="p-6 space-y-6">
-      <!-- Header -->
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-bold text-white">Kanban</h1>
-          <p class="text-sm text-slate-400 mt-1">Ordens de serviço</p>
-        </div>
-        <div class="flex items-center gap-3">
-          <div class="flex bg-[#1a1d27] rounded-lg p-1">
-            <button
-              (click)="onToggleView()"
-              [class]="viewMode() === ViewMode.BOARD ? 'bg-[#4F6EF7] text-white' : 'text-slate-400'"
-              class="px-3 py-1.5 rounded-md text-xs font-medium transition-all">
-              Board
-            </button>
-            <button
-              (click)="onToggleView()"
-              [class]="viewMode() === ViewMode.LIST ? 'bg-[#4F6EF7] text-white' : 'text-slate-400'"
-              class="px-3 py-1.5 rounded-md text-xs font-medium transition-all">
-              Lista
+    <!-- Cabeçalho -->
+    <div class="row mb-1">
+      <div class="col-12">
+        <div class="content-header d-flex align-items-center justify-content-between">
+          <div>
+            <i class="fas fa-clipboard-list header-icon"></i>&nbsp;Kanban
+          </div>
+          <div class="d-flex align-items-center">
+            <div class="btn-group btn-group-sm mr-2">
+              <button type="button" (click)="onToggleView()" class="btn"
+                [class.btn-primary]="viewMode() === ViewMode.BOARD"
+                [class.btn-outline-secondary]="viewMode() !== ViewMode.BOARD">
+                <i class="fas fa-columns mr-1"></i>Board
+              </button>
+              <button type="button" (click)="onToggleView()" class="btn"
+                [class.btn-primary]="viewMode() === ViewMode.LIST"
+                [class.btn-outline-secondary]="viewMode() !== ViewMode.LIST">
+                <i class="fas fa-list mr-1"></i>Lista
+              </button>
+            </div>
+            <button class="btn btn-primary btn-sm">
+              <i class="fas fa-plus mr-1"></i>Nova OS
             </button>
           </div>
-          <button class="px-4 py-2 bg-[#4F6EF7] hover:bg-[#3d5ae0] text-white text-sm font-medium rounded-lg transition-colors">
-            + Nova OS
-          </button>
         </div>
       </div>
+    </div>
 
-      @if (loading()) {
-        <div class="grid grid-cols-4 gap-4">
-          @for (i of [1,2,3,4]; track i) {
+    @if (loading()) {
+      <div class="row">
+        @for (i of [1,2,3,4]; track i) {
+          <div class="col-md-3 mb-3">
             <app-skeleton variant="card" />
-          }
-        </div>
-      } @else if (viewMode() === ViewMode.BOARD) {
-        <!-- Board View -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
-          @for (column of columns; track column.status) {
-            <div class="bg-[#1a1d27] rounded-xl p-3 min-h-[200px]">
-              <div class="flex items-center justify-between mb-3 px-1">
-                <div class="flex items-center gap-2">
-                  <div class="w-2.5 h-2.5 rounded-full" [style.background-color]="column.color"></div>
-                  <span class="text-sm font-semibold text-white">{{ column.label }}</span>
+          </div>
+        }
+      </div>
+    } @else if (viewMode() === ViewMode.BOARD) {
+      <!-- Board View -->
+      <div class="row">
+        @for (column of columns; track column.status) {
+          <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card">
+              <div class="card-header d-flex align-items-center justify-content-between py-2">
+                <div class="d-flex align-items-center">
+                  <span class="rounded-circle mr-2" style="width:10px;height:10px;display:inline-block;" [style.background-color]="column.color"></span>
+                  <span class="font-weight-600 small">{{ column.label }}</span>
                 </div>
-                <span class="text-xs text-slate-500 bg-[#22263a] px-2 py-0.5 rounded-full">
-                  {{ getOrdersByStatus(column.status).length }}
-                </span>
+                <span class="badge badge-secondary badge-pill">{{ getOrdersByStatus(column.status).length }}</span>
               </div>
-
-              <div
+              <div class="card-body p-2"
                 cdkDropList
                 [cdkDropListData]="column.status"
                 (cdkDropListDropped)="onDrop($event)"
-                class="space-y-2 min-h-[100px]">
+                style="min-height: 100px;">
                 @for (order of getOrdersByStatus(column.status); track order.id) {
-                  <div
-                    cdkDrag
-                    [cdkDragData]="order"
-                    class="bg-[#22263a] rounded-lg p-3 border cursor-grab active:cursor-grabbing transition-all hover:border-[#4F6EF7]/30"
-                    [class]="isOverdue(order) ? 'border-red-500' : 'border-slate-700/50'">
-                    <h4 class="text-sm font-medium text-white mb-1">{{ order.title }}</h4>
-                    <p class="text-xs text-slate-400 mb-2">{{ order.leadName }}</p>
-                    <div class="flex items-center justify-between text-xs">
-                      <span class="text-[#4F6EF7] font-mono">
-                        {{ order.estimatedValue | currency:'BRL':'symbol':'1.0-0' }}
-                      </span>
-                      <span [class]="isOverdue(order) ? 'text-red-400' : 'text-slate-500'" class="font-mono">
-                        {{ order.deadline | date:'dd/MM' }}
-                      </span>
-                    </div>
-                    @if (order.assignedAgentName) {
-                      <div class="mt-2 flex items-center gap-1.5">
-                        <div class="w-5 h-5 rounded-full bg-[#4F6EF7]/20 flex items-center justify-center text-[10px] text-[#4F6EF7] font-bold">
-                          {{ order.assignedAgentName.charAt(0) }}
-                        </div>
-                        <span class="text-xs text-slate-500">{{ order.assignedAgentName }}</span>
+                  <div cdkDrag [cdkDragData]="order"
+                    class="card mb-2"
+                    style="cursor: grab;"
+                    [class.border-danger]="isOverdue(order)">
+                    <div class="card-body p-3">
+                      <h6 class="card-title mb-1" style="font-size:0.85rem;">{{ order.title }}</h6>
+                      <p class="text-muted mb-2" style="font-size:0.75rem;">{{ order.leadName }}</p>
+                      <div class="d-flex align-items-center justify-content-between">
+                        <span class="text-primary font-weight-600" style="font-size:0.75rem;">
+                          {{ order.estimatedValue | currency:'BRL':'symbol':'1.0-0' }}
+                        </span>
+                        <span style="font-size:0.75rem;"
+                          [class.text-danger]="isOverdue(order)"
+                          [class.text-muted]="!isOverdue(order)">
+                          {{ order.deadline | date:'dd/MM' }}
+                        </span>
                       </div>
-                    }
+                      @if (order.assignedAgentName) {
+                        <div class="mt-2 d-flex align-items-center">
+                          <span class="badge badge-pill mr-1" style="background:rgba(79,110,247,0.15);color:#4F6EF7;font-size:10px;">
+                            {{ order.assignedAgentName.charAt(0) }}
+                          </span>
+                          <small class="text-muted">{{ order.assignedAgentName }}</small>
+                        </div>
+                      }
+                    </div>
                   </div>
                 }
               </div>
             </div>
-          }
-        </div>
-      } @else {
-        <!-- List View -->
-        <div class="bg-[#22263a] rounded-xl border border-slate-700/50 overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="border-b border-slate-700/50 text-xs text-slate-400 uppercase tracking-wider">
-                <th class="px-4 py-3 text-left font-medium">Título</th>
-                <th class="px-4 py-3 text-left font-medium">Lead</th>
-                <th class="px-4 py-3 text-left font-medium">Status</th>
-                <th class="px-4 py-3 text-left font-medium">Responsável</th>
-                <th class="px-4 py-3 text-left font-medium">Valor</th>
-                <th class="px-4 py-3 text-left font-medium">Prazo</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (order of allOrders(); track order.id) {
-                <tr class="border-b border-slate-700/30 hover:bg-[#1a1d27] transition-colors">
-                  <td class="px-4 py-3 text-white font-medium">{{ order.title }}</td>
-                  <td class="px-4 py-3 text-slate-400">{{ order.leadName }}</td>
-                  <td class="px-4 py-3">
-                    <span class="text-xs px-2 py-0.5 rounded-full"
-                      [style.background-color]="getColumnColor(order.status) + '15'"
-                      [style.color]="getColumnColor(order.status)">
-                      {{ getColumnLabel(order.status) }}
-                    </span>
-                  </td>
-                  <td class="px-4 py-3 text-slate-400">{{ order.assignedAgentName ?? '—' }}</td>
-                  <td class="px-4 py-3 text-[#4F6EF7] font-mono text-xs">
-                    {{ order.estimatedValue | currency:'BRL':'symbol':'1.0-0' }}
-                  </td>
-                  <td class="px-4 py-3 font-mono text-xs" [class]="isOverdue(order) ? 'text-red-400' : 'text-slate-500'">
-                    {{ order.deadline | date:'dd/MM/yyyy' }}
-                  </td>
+          </div>
+        }
+      </div>
+    } @else {
+      <!-- List View -->
+      <div class="card">
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover table-sm mb-0">
+              <thead class="thead-light">
+                <tr>
+                  <th>Título</th>
+                  <th>Lead</th>
+                  <th>Status</th>
+                  <th>Responsável</th>
+                  <th>Valor</th>
+                  <th>Prazo</th>
                 </tr>
-              }
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                @for (order of allOrders(); track order.id) {
+                  <tr>
+                    <td class="font-weight-600">{{ order.title }}</td>
+                    <td class="text-muted">{{ order.leadName }}</td>
+                    <td>
+                      <span class="badge badge-pill"
+                        [style.background-color]="getColumnColor(order.status) + '20'"
+                        [style.color]="getColumnColor(order.status)">
+                        {{ getColumnLabel(order.status) }}
+                      </span>
+                    </td>
+                    <td class="text-muted">{{ order.assignedAgentName ?? '—' }}</td>
+                    <td class="text-primary font-weight-600" style="font-size:0.8rem;">
+                      {{ order.estimatedValue | currency:'BRL':'symbol':'1.0-0' }}
+                    </td>
+                    <td style="font-size:0.8rem;"
+                      [class.text-danger]="isOverdue(order)"
+                      [class.text-muted]="!isOverdue(order)">
+                      {{ order.deadline | date:'dd/MM/yyyy' }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
         </div>
-      }
-    </div>
+      </div>
+    }
   `,
 })
 export class KanbanPageComponent implements OnInit {

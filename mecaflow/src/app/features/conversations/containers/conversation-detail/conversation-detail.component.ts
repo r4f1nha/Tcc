@@ -25,7 +25,7 @@ import { MessageInputComponent } from '../../components/message-input/message-in
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (conversation(); as conv) {
-      <div class="flex flex-col h-full bg-[#0f1117]">
+      <div class="d-flex flex-column h-100">
         <!-- Header -->
         <app-conversation-header
           [conversation]="conv"
@@ -35,22 +35,24 @@ import { MessageInputComponent } from '../../components/message-input/message-in
         />
 
         <!-- Messages -->
-        <div class="flex-1 overflow-y-auto p-4">
+        <div class="flex-grow-1 overflow-auto p-3">
           @if (messagesLoading()) {
-            <div class="flex justify-center py-4">
-              <div class="animate-spin w-6 h-6 border-2 border-[#4F6EF7] border-t-transparent rounded-full"></div>
+            <div class="text-center py-3">
+              <div class="spinner-border spinner-border-sm text-primary" role="status">
+                <span class="sr-only">Carregando...</span>
+              </div>
             </div>
           }
           @for (message of messages(); track message.id) {
             <app-message-bubble [message]="message" />
           }
           @if (typingIndicators().length > 0) {
-            <div class="flex items-center gap-2 text-xs text-slate-400 px-4 py-2">
-              <div class="flex gap-1">
-                <div class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></div>
-                <div class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                <div class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-              </div>
+            <div class="d-flex align-items-center text-muted px-3 py-2" style="font-size:0.75rem;">
+              <span class="mr-2">
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
+              </span>
               {{ typingIndicators()[0].userName }} está digitando...
             </div>
           }

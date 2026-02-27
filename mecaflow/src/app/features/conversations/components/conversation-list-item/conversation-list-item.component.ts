@@ -12,40 +12,45 @@ import { TruncatePipe } from '../../../../shared/pipes/truncate.pipe';
     <button
       type="button"
       (click)="selected.emit(conversation().id)"
-      [class]="isActive() ? 'bg-[#4F6EF7]/10 border-l-2 border-l-[#4F6EF7]' : 'border-l-2 border-l-transparent hover:bg-[#1a1d27]'"
-      class="w-full flex items-start gap-3 p-3 transition-all text-left">
+      class="w-100 d-flex align-items-start p-3 border-0 text-left conv-item"
+      [class.conv-item-active]="isActive()"
+      style="background:transparent; border-left: 3px solid transparent; cursor:pointer; transition:all 0.15s;">
       <!-- Avatar -->
-      <div class="relative shrink-0">
-        <div class="w-10 h-10 rounded-full bg-[#4F6EF7]/20 flex items-center justify-center text-sm font-semibold text-[#4F6EF7]">
+      <div class="position-relative mr-3 flex-shrink-0">
+        <div class="d-flex align-items-center justify-content-center rounded-circle font-weight-600"
+          style="width:38px;height:38px;background:rgba(79,110,247,0.12);color:#4F6EF7;font-size:13px;">
           {{ getInitials(conversation().leadName) }}
         </div>
-        <div
-          class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#22263a]"
-          [class]="statusDotColor">
-        </div>
+        <span class="position-absolute rounded-circle border border-white"
+          [style.background]="statusDotColor"
+          style="width:10px;height:10px;bottom:-1px;right:-1px;"></span>
       </div>
 
-      <!-- Content -->
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center justify-between mb-0.5">
-          <span class="text-sm font-medium text-white truncate">{{ conversation().leadName }}</span>
-          <span class="text-xs text-slate-500 font-mono shrink-0">
-            {{ conversation().lastMessageAt | timeAgo }}
+      <!-- Conteúdo -->
+      <div class="flex-grow-1 min-w-0">
+        <div class="d-flex align-items-center justify-content-between mb-1">
+          <span class="font-weight-600 text-truncate" style="font-size:0.83rem;color:#333;">
+            {{ conversation().leadName }}
           </span>
+          <small class="text-muted text-nowrap ml-2">{{ conversation().lastMessageAt | timeAgo }}</small>
         </div>
-        <p class="text-xs text-slate-400 truncate">
+        <p class="text-muted mb-0 text-truncate" style="font-size:0.78rem;">
           {{ conversation().lastMessage | truncate:50 }}
         </p>
       </div>
 
-      <!-- Unread -->
+      <!-- Badge não lido -->
       @if (conversation().unreadCount > 0) {
-        <span class="bg-[#4F6EF7] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center shrink-0">
+        <span class="badge badge-pill badge-primary ml-2 align-self-center" style="font-size:0.65rem;">
           {{ conversation().unreadCount }}
         </span>
       }
     </button>
   `,
+  styles: [`
+    .conv-item:hover { background: #f8f9fc !important; border-left-color: #4F6EF7 !important; }
+    .conv-item-active { background: rgba(79,110,247,0.06) !important; border-left-color: #4F6EF7 !important; }
+  `],
 })
 export class ConversationListItemComponent {
   readonly conversation = input.required<Conversation>();
@@ -54,10 +59,10 @@ export class ConversationListItemComponent {
 
   get statusDotColor(): string {
     const colorMap: Record<ConversationStatus, string> = {
-      [ConversationStatus.HUMAN]: 'bg-emerald-500',
-      [ConversationStatus.BOT]: 'bg-red-500',
-      [ConversationStatus.UNASSIGNED]: 'bg-amber-500',
-      [ConversationStatus.RESOLVED]: 'bg-slate-500',
+      [ConversationStatus.HUMAN]: '#28C76F',
+      [ConversationStatus.BOT]: '#EA5455',
+      [ConversationStatus.UNASSIGNED]: '#FF9F43',
+      [ConversationStatus.RESOLVED]: '#aaa',
     };
     return colorMap[this.conversation().status];
   }

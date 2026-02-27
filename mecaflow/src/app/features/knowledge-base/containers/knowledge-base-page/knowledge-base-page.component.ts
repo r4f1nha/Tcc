@@ -12,65 +12,81 @@ import { SkeletonComponent } from '../../../../shared/components/skeleton/skelet
   imports: [DatePipe, SkeletonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="p-6 space-y-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-bold text-white">Base de Conhecimento</h1>
-          <p class="text-sm text-slate-400 mt-1">Informações usadas pelo agente de IA</p>
+    <!-- Cabeçalho -->
+    <div class="row mb-1">
+      <div class="col-12">
+        <div class="content-header d-flex align-items-center justify-content-between">
+          <div>
+            <i class="fas fa-book header-icon"></i>&nbsp;Base de Conhecimento
+          </div>
+          <button class="btn btn-primary btn-sm">
+            <i class="fas fa-plus mr-1"></i>Nova Entrada
+          </button>
         </div>
-        <button class="px-4 py-2 bg-[#4F6EF7] hover:bg-[#3d5ae0] text-white text-sm font-medium rounded-lg transition-colors">
-          + Nova Entrada
-        </button>
       </div>
+    </div>
 
-      <!-- Category Tabs -->
-      <div class="flex gap-2">
-        <button (click)="onFilterCategory(null)"
-          [class]="!filters().category ? 'bg-[#4F6EF7] text-white' : 'bg-[#1a1d27] text-slate-400 hover:text-white'"
-          class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all">
+    <!-- Category Tabs -->
+    <div class="mb-3">
+      <div class="btn-group btn-group-sm">
+        <button type="button" class="btn"
+          [class.btn-primary]="!filters().category"
+          [class.btn-outline-secondary]="!!filters().category"
+          (click)="onFilterCategory(null)">
           Todas
         </button>
         @for (cat of categories; track cat.value) {
-          <button (click)="onFilterCategory(cat.value)"
-            [class]="filters().category === cat.value ? 'bg-[#4F6EF7] text-white' : 'bg-[#1a1d27] text-slate-400 hover:text-white'"
-            class="px-3 py-1.5 rounded-lg text-xs font-medium transition-all">
+          <button type="button" class="btn"
+            [class.btn-primary]="filters().category === cat.value"
+            [class.btn-outline-secondary]="filters().category !== cat.value"
+            (click)="onFilterCategory(cat.value)">
             {{ cat.label }}
           </button>
         }
       </div>
+    </div>
 
-      <!-- Entries Grid -->
-      @if (loading()) {
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          @for (i of [1,2,3,4]; track i) { <app-skeleton variant="card" /> }
-        </div>
-      } @else {
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          @for (entry of entries(); track entry.id) {
-            <div class="bg-[#22263a] rounded-xl border border-slate-700/50 p-5 hover:border-[#4F6EF7]/30 transition-all">
-              <div class="flex items-start justify-between mb-3">
-                <h3 class="text-sm font-semibold text-white">{{ entry.title }}</h3>
-                <span class="text-xs px-2 py-0.5 rounded-full bg-[#4F6EF7]/10 text-[#4F6EF7]">
-                  {{ getCategoryLabel(entry.category) }}
-                </span>
+    <!-- Entries -->
+    @if (loading()) {
+      <div class="row">
+        @for (i of [1,2,3,4]; track i) {
+          <div class="col-md-6 mb-3"><app-skeleton variant="card" /></div>
+        }
+      </div>
+    } @else {
+      <div class="row">
+        @for (entry of entries(); track entry.id) {
+          <div class="col-md-6 mb-3">
+            <div class="card h-100">
+              <div class="card-body">
+                <div class="d-flex align-items-start justify-content-between mb-2">
+                  <h6 class="card-title mb-0">{{ entry.title }}</h6>
+                  <span class="badge badge-pill badge-primary ml-2" style="flex-shrink:0;">
+                    {{ getCategoryLabel(entry.category) }}
+                  </span>
+                </div>
+                <p class="card-text text-muted" style="font-size:0.8rem;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;">{{ entry.content }}</p>
               </div>
-              <p class="text-xs text-slate-400 line-clamp-3 mb-3">{{ entry.content }}</p>
-              <div class="flex items-center justify-between text-xs text-slate-500">
-                <span class="font-mono">{{ entry.updatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
-                <div class="flex gap-2">
-                  <button class="text-[#4F6EF7] hover:text-[#3d5ae0]">Editar</button>
-                  <button class="text-red-400 hover:text-red-300">Excluir</button>
+              <div class="card-footer d-flex align-items-center justify-content-between py-2">
+                <small class="text-muted">{{ entry.updatedAt | date:'dd/MM/yyyy HH:mm' }}</small>
+                <div>
+                  <button class="btn btn-link btn-sm text-primary p-0 mr-2">Editar</button>
+                  <button class="btn btn-link btn-sm text-danger p-0">Excluir</button>
                 </div>
               </div>
             </div>
-          } @empty {
-            <div class="col-span-2 text-center py-12 text-slate-500 text-sm">
-              Nenhuma entrada na base de conhecimento
+          </div>
+        } @empty {
+          <div class="col-12">
+            <div class="card">
+              <div class="card-body text-center text-muted py-5">
+                Nenhuma entrada na base de conhecimento
+              </div>
             </div>
-          }
-        </div>
-      }
-    </div>
+          </div>
+        }
+      </div>
+    }
   `,
 })
 export class KnowledgeBasePageComponent implements OnInit {

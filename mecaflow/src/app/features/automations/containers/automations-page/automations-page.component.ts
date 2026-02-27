@@ -10,60 +10,68 @@ import { SkeletonComponent } from '../../../../shared/components/skeleton/skelet
   imports: [DatePipe, SkeletonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="p-6 space-y-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-bold text-white">Automações</h1>
-          <p class="text-sm text-slate-400 mt-1">Configure ações automáticas baseadas em etiquetas</p>
+    <!-- Cabeçalho -->
+    <div class="row mb-1">
+      <div class="col-12">
+        <div class="content-header d-flex align-items-center justify-content-between">
+          <div>
+            <i class="fas fa-bolt header-icon"></i>&nbsp;Automações
+          </div>
+          <button class="btn btn-primary btn-sm">
+            <i class="fas fa-plus mr-1"></i>Nova Automação
+          </button>
         </div>
-        <button class="px-4 py-2 bg-[#4F6EF7] hover:bg-[#3d5ae0] text-white text-sm font-medium rounded-lg transition-colors">
-          + Nova Automação
-        </button>
       </div>
+    </div>
 
-      @if (loading()) {
-        @for (i of [1,2,3]; track i) { <app-skeleton variant="card" /> }
-      } @else {
-        <div class="space-y-3">
-          @for (automation of automations(); track automation.id) {
-            <div class="bg-[#22263a] rounded-xl border border-slate-700/50 p-5 flex items-center justify-between">
-              <div class="flex items-center gap-4">
-                <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg"
-                  [class]="automation.active ? 'bg-emerald-500/10' : 'bg-slate-500/10'">
-                  {{ automation.active ? '⚡' : '⏸️' }}
-                </div>
-                <div>
-                  <h3 class="text-sm font-semibold text-white">{{ automation.name }}</h3>
-                  <p class="text-xs text-slate-400">
-                    Quando etiqueta
-                    <span class="text-[#4F6EF7] font-medium">{{ automation.triggerLabelName }}</span>
-                    → {{ getActionLabel(automation.action) }}
-                  </p>
-                </div>
+    @if (loading()) {
+      @for (i of [1,2,3]; track i) {
+        <div class="mb-3"><app-skeleton variant="card" /></div>
+      }
+    } @else {
+      @for (automation of automations(); track automation.id) {
+        <div class="card mb-3">
+          <div class="card-body d-flex align-items-center justify-content-between py-3">
+            <div class="d-flex align-items-center">
+              <div class="rounded d-flex align-items-center justify-content-center mr-3"
+                style="width:40px;height:40px;font-size:1.1rem;flex-shrink:0;"
+                [style.background]="automation.active ? 'rgba(40,199,111,0.1)' : 'rgba(108,117,125,0.1)'">
+                <i class="fas"
+                  [class.fa-bolt]="automation.active"
+                  [class.fa-pause]="!automation.active"
+                  [class.text-success]="automation.active"
+                  [class.text-muted]="!automation.active"></i>
               </div>
-              <div class="flex items-center gap-3">
-                <span class="text-xs text-slate-500 font-mono">{{ automation.updatedAt | date:'dd/MM/yyyy' }}</span>
-                <!-- Toggle -->
-                <button
-                  (click)="onToggle(automation)"
-                  class="relative w-10 h-5 rounded-full transition-colors"
-                  [class]="automation.active ? 'bg-emerald-500' : 'bg-slate-600'">
-                  <div
-                    class="absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform"
-                    [class]="automation.active ? 'left-5' : 'left-0.5'">
-                  </div>
-                </button>
-                <button class="text-xs text-slate-400 hover:text-white px-2 py-1">Ver logs</button>
+              <div>
+                <h6 class="mb-0 font-weight-600">{{ automation.name }}</h6>
+                <small class="text-muted">
+                  Quando etiqueta
+                  <span class="text-primary font-weight-600">{{ automation.triggerLabelName }}</span>
+                  → {{ getActionLabel(automation.action) }}
+                </small>
               </div>
             </div>
-          } @empty {
-            <div class="text-center py-12 text-slate-500 text-sm">
-              Nenhuma automação configurada
+            <div class="d-flex align-items-center">
+              <small class="text-muted mr-3">{{ automation.updatedAt | date:'dd/MM/yyyy' }}</small>
+              <div class="custom-control custom-switch mr-2">
+                <input type="checkbox" class="custom-control-input"
+                  [id]="'toggle-' + automation.id"
+                  [checked]="automation.active"
+                  (change)="onToggle(automation)">
+                <label class="custom-control-label" [for]="'toggle-' + automation.id"></label>
+              </div>
+              <button class="btn btn-link btn-sm text-muted p-0">Ver logs</button>
             </div>
-          }
+          </div>
+        </div>
+      } @empty {
+        <div class="card">
+          <div class="card-body text-center text-muted py-5">
+            Nenhuma automação configurada
+          </div>
         </div>
       }
-    </div>
+    }
   `,
 })
 export class AutomationsPageComponent implements OnInit {

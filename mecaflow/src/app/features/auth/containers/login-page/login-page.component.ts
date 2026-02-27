@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { LoginFormComponent } from '../../components/login-form/login-form.component';
 import { LoginFormData } from '../../models/auth.model';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-login-page',
@@ -22,6 +23,7 @@ export class LoginPageComponent {
 
   readonly loading = signal(false);
   readonly errorMessage = signal<string | null>(null);
+  readonly devMode = environment.devMode;
 
   onLogin(credentials: LoginFormData): void {
     this.loading.set(true);
@@ -35,14 +37,19 @@ export class LoginPageComponent {
       error: (error: { status: number }) => {
         this.loading.set(false);
         if (error.status === 401) {
-          this.errorMessage.set('Invalid email or password. Please try again.');
+          this.errorMessage.set('E-mail ou senha incorretos. Tente novamente.');
         } else if (error.status === 429) {
-          this.errorMessage.set('Too many login attempts. Please try again later.');
+          this.errorMessage.set('Muitas tentativas. Tente novamente mais tarde.');
         } else {
-          this.errorMessage.set('An unexpected error occurred. Please try again.');
+          this.errorMessage.set('Erro inesperado. Tente novamente.');
         }
       },
     });
+  }
+
+  onDevLogin(): void {
+    this.authService.devLogin();
+    this.router.navigate(['/dashboard']);
   }
 
   onNavigateToForgotPassword(): void {

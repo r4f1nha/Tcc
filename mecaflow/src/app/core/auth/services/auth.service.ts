@@ -107,6 +107,22 @@ export class AuthService implements OnDestroy {
     return currentRole !== null && roles.includes(currentRole);
   }
 
+  devLogin(role: UserRole = UserRole.OWNER): void {
+    const fakeUser: User = {
+      id: 'dev-user-001',
+      name: 'Renzo Dev',
+      email: 'dev@mecaflow.com',
+      role,
+      tenantId: 'tenant-dev-001',
+      avatarUrl: null,
+      active: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    this.currentUser.set(fakeUser);
+    this.logService.info('Dev login ativado', 'AuthService', { role });
+  }
+
   private restoreSession(): void {
     const token = this.getAccessToken();
     if (!token) {

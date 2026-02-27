@@ -16,45 +16,73 @@ import { LeadTableComponent } from '../../components/lead-table/lead-table.compo
   imports: [LeadTableComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="p-6 space-y-6">
-      <!-- Header -->
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-bold text-white">Leads</h1>
-          <p class="text-sm text-slate-400 mt-1">Gerencie seus leads e contatos</p>
+    <!-- Cabeçalho -->
+    <div class="row mb-1">
+      <div class="col-12">
+        <div class="content-header d-flex align-items-center justify-content-between">
+          <div>
+            <i class="fas fa-users header-icon"></i>&nbsp;Leads
+          </div>
+          <button class="btn btn-primary btn-sm" (click)="onCreateLead()">
+            <i class="fas fa-plus mr-1"></i>Novo Lead
+          </button>
         </div>
-        <button
-          (click)="onCreateLead()"
-          class="px-4 py-2 bg-[#4F6EF7] hover:bg-[#3d5ae0] text-white text-sm font-medium rounded-lg transition-colors">
-          + Novo Lead
-        </button>
       </div>
+    </div>
 
-      <!-- Search -->
-      <div class="flex items-center gap-3">
-        <input
-          type="text"
-          placeholder="Buscar leads..."
-          class="flex-1 max-w-md px-4 py-2 bg-[#1a1d27] border border-slate-600/50 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#4F6EF7]"
-        />
+    <!-- Filtros -->
+    <div class="card mb-3">
+      <div class="card-body py-2">
+        <div class="row align-items-center">
+          <div class="col-md-5 col-sm-8 col-12 mb-2 mb-md-0">
+            <div class="input-group input-group-sm">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+              </div>
+              <input type="text" class="form-control" placeholder="Buscar leads por nome, telefone..." />
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-4 col-12 mb-2 mb-md-0">
+            <select class="form-control form-control-sm">
+              <option value="">Todos os status</option>
+              <option value="new">Novo</option>
+              <option value="qualified">Qualificado</option>
+              <option value="converted">Convertido</option>
+              <option value="lost">Perdido</option>
+            </select>
+          </div>
+        </div>
       </div>
+    </div>
 
-      <!-- Table -->
-      <div class="bg-[#22263a] rounded-xl border border-slate-700/50">
+    <!-- Tabela -->
+    <div class="card">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <h6 class="card-title"><i class="fas fa-list"></i> Lista de Leads</h6>
+        @if (pagination().totalItems > 0) {
+          <small class="text-muted">{{ pagination().totalItems }} leads encontrados</small>
+        }
+      </div>
+      <div class="card-body p-0">
         <app-lead-table
           [leads]="leads()"
           [loading]="loading()"
           (leadSelected)="onLeadSelected($event)"
         />
       </div>
-
-      <!-- Pagination -->
       @if (pagination().totalPages > 1) {
-        <div class="flex items-center justify-between text-sm text-slate-400">
-          <span>{{ pagination().totalItems }} leads encontrados</span>
-          <div class="flex items-center gap-2">
-            <span>Página {{ pagination().page + 1 }} de {{ pagination().totalPages }}</span>
-          </div>
+        <div class="card-footer d-flex align-items-center justify-content-between">
+          <small class="text-muted">Página {{ pagination().page + 1 }} de {{ pagination().totalPages }}</small>
+          <nav>
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item" [class.disabled]="pagination().page === 0">
+                <button class="page-link">Anterior</button>
+              </li>
+              <li class="page-item" [class.disabled]="pagination().page === pagination().totalPages - 1">
+                <button class="page-link">Próxima</button>
+              </li>
+            </ul>
+          </nav>
         </div>
       }
     </div>

@@ -1,20 +1,20 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { NgClass } from '@angular/common';
 import { MetricPeriod } from '../../models/dashboard.model';
 
 @Component({
   selector: 'app-period-selector',
   standalone: true,
+  imports: [NgClass],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="flex items-center gap-1 bg-[#1a1d27] rounded-lg p-1">
+    <div class="btn-group" role="group">
       @for (option of periods; track option.value) {
         <button
           type="button"
-          (click)="periodChanged.emit(option.value)"
-          [class]="selected() === option.value
-            ? 'bg-[#4F6EF7] text-white'
-            : 'text-slate-400 hover:text-white'"
-          class="px-4 py-2 rounded-md text-sm font-medium transition-all">
+          class="btn btn-sm"
+          [ngClass]="selected() === option.value ? 'btn-primary' : 'btn-outline-secondary'"
+          (click)="periodChanged.emit(option.value)">
           {{ option.label }}
         </button>
       }
@@ -26,8 +26,8 @@ export class PeriodSelectorComponent {
   readonly periodChanged = output<MetricPeriod>();
 
   readonly periods: ReadonlyArray<{ label: string; value: MetricPeriod }> = [
-    { label: 'Hoje', value: MetricPeriod.TODAY },
+    { label: 'Hoje',   value: MetricPeriod.TODAY },
     { label: 'Semana', value: MetricPeriod.WEEK },
-    { label: 'Mês', value: MetricPeriod.MONTH },
+    { label: 'Mês',    value: MetricPeriod.MONTH },
   ];
 }

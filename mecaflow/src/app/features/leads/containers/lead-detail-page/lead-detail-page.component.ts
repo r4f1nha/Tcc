@@ -13,75 +13,95 @@ import { DatePipe } from '@angular/common';
   imports: [SkeletonComponent, DatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="p-6 space-y-6">
-      @if (loading()) {
-        <app-skeleton variant="card" />
-      } @else if (lead(); as lead) {
-        <!-- Header -->
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-4">
-            <button (click)="goBack()" class="text-slate-400 hover:text-white transition-colors">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-              </svg>
-            </button>
-            <div class="w-14 h-14 rounded-full bg-[#4F6EF7]/20 flex items-center justify-center text-xl font-bold text-[#4F6EF7]">
-              {{ lead.name.charAt(0).toUpperCase() }}
+    @if (loading()) {
+      <app-skeleton variant="card" />
+    } @else if (lead(); as lead) {
+      <!-- Cabeçalho -->
+      <div class="row mb-1">
+        <div class="col-12">
+          <div class="content-header d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+              <button (click)="goBack()" class="btn btn-link btn-sm text-muted p-0 mr-3">
+                <i class="fas fa-arrow-left"></i>
+              </button>
+              <div class="rounded-circle d-flex align-items-center justify-content-center mr-3 font-weight-700"
+                style="width:48px;height:48px;background:rgba(79,110,247,0.15);color:#4F6EF7;font-size:1.2rem;flex-shrink:0;">
+                {{ lead.name.charAt(0).toUpperCase() }}
+              </div>
+              <div>
+                <h5 class="mb-0">{{ lead.name }}</h5>
+                <small class="text-muted">{{ lead.phone }} · {{ lead.email ?? 'Sem email' }}</small>
+              </div>
             </div>
-            <div>
-              <h1 class="text-xl font-bold text-white">{{ lead.name }}</h1>
-              <p class="text-sm text-slate-400">{{ lead.phone }} · {{ lead.email ?? 'Sem email' }}</p>
-            </div>
-          </div>
-          <span class="text-xs px-3 py-1 rounded-full font-medium" [class]="getStatusClass(lead.status)">
-            {{ getStatusLabel(lead.status) }}
-          </span>
-        </div>
-
-        <!-- Info Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="bg-[#22263a] rounded-xl border border-slate-700/50 p-5">
-            <h3 class="text-xs text-slate-400 uppercase tracking-wider mb-2">Agente responsável</h3>
-            <p class="text-white font-medium">{{ lead.assignedAgentName ?? 'Não atribuído' }}</p>
-          </div>
-          <div class="bg-[#22263a] rounded-xl border border-slate-700/50 p-5">
-            <h3 class="text-xs text-slate-400 uppercase tracking-wider mb-2">Origem</h3>
-            <p class="text-white font-medium">{{ lead.source }}</p>
-          </div>
-          <div class="bg-[#22263a] rounded-xl border border-slate-700/50 p-5">
-            <h3 class="text-xs text-slate-400 uppercase tracking-wider mb-2">Criado em</h3>
-            <p class="text-white font-medium font-mono text-sm">{{ lead.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+            <span class="badge badge-pill" [class]="getStatusClass(lead.status)">
+              {{ getStatusLabel(lead.status) }}
+            </span>
           </div>
         </div>
+      </div>
 
-        <!-- Labels -->
-        @if (lead.labels.length > 0) {
-          <div class="flex items-center gap-2">
-            <span class="text-xs text-slate-400">Etiquetas:</span>
-            @for (label of lead.labels; track label.id) {
-              <span
-                class="text-xs px-2 py-0.5 rounded-full"
-                [style.background-color]="label.color + '20'"
-                [style.color]="label.color">
-                {{ label.name }}
-              </span>
-            }
+      <!-- Info Cards -->
+      <div class="row mb-3">
+        <div class="col-md-4 mb-3">
+          <div class="card">
+            <div class="card-body py-3">
+              <small class="text-muted text-uppercase font-weight-600 d-block mb-1">Agente responsável</small>
+              <span class="font-weight-600">{{ lead.assignedAgentName ?? 'Não atribuído' }}</span>
+            </div>
           </div>
-        }
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card">
+            <div class="card-body py-3">
+              <small class="text-muted text-uppercase font-weight-600 d-block mb-1">Origem</small>
+              <span class="font-weight-600">{{ lead.source }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card">
+            <div class="card-body py-3">
+              <small class="text-muted text-uppercase font-weight-600 d-block mb-1">Criado em</small>
+              <span class="font-weight-600" style="font-size:0.85rem;">{{ lead.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        <!-- Tabs: Conversations, Appointments, Services -->
-        <div class="bg-[#22263a] rounded-xl border border-slate-700/50">
-          <div class="flex border-b border-slate-700/50">
-            <button class="px-4 py-3 text-sm font-medium text-[#4F6EF7] border-b-2 border-[#4F6EF7]">Conversas</button>
-            <button class="px-4 py-3 text-sm font-medium text-slate-400 hover:text-slate-300">Agendamentos</button>
-            <button class="px-4 py-3 text-sm font-medium text-slate-400 hover:text-slate-300">Serviços</button>
-          </div>
-          <div class="p-6 text-center text-sm text-slate-500">
-            Histórico será carregado conforme o backend estiver disponível
-          </div>
+      <!-- Labels -->
+      @if (lead.labels.length > 0) {
+        <div class="mb-3 d-flex align-items-center flex-wrap">
+          <small class="text-muted mr-2">Etiquetas:</small>
+          @for (label of lead.labels; track label.id) {
+            <span class="badge badge-pill mr-1 mb-1"
+              [style.background-color]="label.color + '20'"
+              [style.color]="label.color">
+              {{ label.name }}
+            </span>
+          }
         </div>
       }
-    </div>
+
+      <!-- Tabs -->
+      <div class="card">
+        <div class="card-header p-0">
+          <ul class="nav nav-tabs card-header-tabs ml-0">
+            <li class="nav-item">
+              <a class="nav-link active" href="javascript:void(0)">Conversas</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="javascript:void(0)">Agendamentos</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="javascript:void(0)">Serviços</a>
+            </li>
+          </ul>
+        </div>
+        <div class="card-body text-center text-muted py-5">
+          <small>Histórico será carregado conforme o backend estiver disponível</small>
+        </div>
+      </div>
+    }
   `,
 })
 export class LeadDetailPageComponent implements OnInit {
@@ -105,11 +125,11 @@ export class LeadDetailPageComponent implements OnInit {
 
   getStatusClass(status: LeadStatus): string {
     const classes: Record<LeadStatus, string> = {
-      [LeadStatus.NEW]: 'bg-blue-500/10 text-blue-400',
-      [LeadStatus.CONTACTED]: 'bg-amber-500/10 text-amber-400',
-      [LeadStatus.QUALIFIED]: 'bg-emerald-500/10 text-emerald-400',
-      [LeadStatus.CONVERTED]: 'bg-green-500/10 text-green-400',
-      [LeadStatus.LOST]: 'bg-red-500/10 text-red-400',
+      [LeadStatus.NEW]: 'badge-info',
+      [LeadStatus.CONTACTED]: 'badge-warning',
+      [LeadStatus.QUALIFIED]: 'badge-primary',
+      [LeadStatus.CONVERTED]: 'badge-success',
+      [LeadStatus.LOST]: 'badge-danger',
     };
     return classes[status];
   }

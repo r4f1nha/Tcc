@@ -9,14 +9,18 @@ import { SkeletonComponent } from '../../../../shared/components/skeleton/skelet
   imports: [KpiCardComponent, SkeletonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="row">
       @if (loading()) {
         @for (i of skeletonItems; track i) {
-          <app-skeleton variant="card" />
+          <div class="col-md-4 col-sm-6 mb-3">
+            <app-skeleton variant="card" />
+          </div>
         }
       } @else {
         @for (kpi of kpis(); track kpi.id) {
-          <app-kpi-card [kpi]="kpi" />
+          <div class="col-md-4 col-sm-6 mb-3">
+            <app-kpi-card [kpi]="kpi" />
+          </div>
         }
       }
     </div>
