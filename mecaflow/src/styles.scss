@@ -1,0 +1,681 @@
+// =============================================
+// MecaFlow - Estilos Globais
+// Padrão: Bootstrap 4 + personalizações
+// =============================================
+
+// Variáveis de cor do tema
+$primary-color: #1a1d27;
+$sidebar-bg: #1a1d27;
+$topbar-bg: #ffffff;
+$accent-color: #4F6EF7;
+$accent-hover: #3a58e0;
+$body-bg: #f5f5f5;
+$card-bg: #ffffff;
+$text-primary: #444;
+$text-muted: #aaa;
+$border-color: #e4e7ed;
+$success-color: #28C76F;
+$warning-color: #FF9F43;
+$danger-color: #EA5455;
+$info-color: #00CFE8;
+
+body {
+  background-color: $body-bg;
+  color: $text-primary;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+// =============================================
+// LAYOUT PRINCIPAL
+// =============================================
+.wrapper {
+  display: flex;
+  min-height: 100vh;
+  position: relative;
+}
+
+.main-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.main-content {
+  flex: 1;
+  padding: 0;
+}
+
+.content-wrapper {
+  padding: 1.5rem;
+  min-height: calc(100vh - 56px - 50px);
+}
+
+// =============================================
+// SIDEBAR (MENU LATERAL)
+// =============================================
+.app-sidebar {
+  width: 260px;
+  min-height: 100vh;
+  background-color: $sidebar-bg;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1050;
+  transition: width 0.3s ease, transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.15);
+
+  &.sidebar-sm {
+    width: 68px;
+
+    .sidebar-label,
+    .navigation-header,
+    .menu-title,
+    .badge {
+      display: none !important;
+    }
+
+    .menu-item a {
+      justify-content: center;
+      padding: 0.75rem;
+    }
+  }
+}
+
+.sidebar-header {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  flex-shrink: 0;
+
+  .logo-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #4F6EF7, #7b5ea7);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+
+      i {
+        color: #fff;
+        font-size: 16px;
+      }
+    }
+
+    .logo-text {
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  .sidebar-toggle {
+    color: rgba(255, 255, 255, 0.5);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    font-size: 18px;
+    transition: color 0.2s;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+}
+
+// Navegação do sidebar
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.5rem 0;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+  }
+}
+
+.navigation-header {
+  padding: 1rem 1rem 0.4rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.menu-item {
+  > a, > button {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.55rem 1rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    border-radius: 0;
+    transition: all 0.2s;
+    font-size: 0.875rem;
+    font-weight: 400;
+    border: none;
+    background: none;
+    width: 100%;
+    cursor: pointer;
+
+    i {
+      font-size: 15px;
+      width: 20px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    &:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    &.active {
+      color: #fff;
+      background: rgba(79, 110, 247, 0.3);
+      border-right: 3px solid $accent-color;
+    }
+  }
+
+  .badge {
+    margin-left: auto;
+    font-size: 0.65rem;
+    padding: 0.2rem 0.45rem;
+  }
+}
+
+.sidebar-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 0.75rem;
+}
+
+// =============================================
+// TOPBAR / NAVBAR
+// =============================================
+.top-bar {
+  height: 56px;
+  background-color: $topbar-bg;
+  border-bottom: 1px solid $border-color;
+  display: flex;
+  align-items: center;
+  padding: 0 1.25rem;
+  gap: 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+  .search-input-wrapper {
+    position: relative;
+    flex: 1;
+    max-width: 380px;
+
+    .fa-search {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: $text-muted;
+      font-size: 13px;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.4rem 1rem 0.4rem 2.25rem;
+      border-radius: 20px;
+      border: 1px solid $border-color;
+      background: $body-bg;
+      font-size: 0.875rem;
+      outline: none;
+      transition: border-color 0.2s;
+
+      &:focus {
+        border-color: $accent-color;
+      }
+    }
+  }
+
+  .topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+  }
+
+  .btn-topbar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid $border-color;
+    background: $body-bg;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+
+    &:hover {
+      background: #e9ecef;
+      color: $accent-color;
+    }
+
+    .badge-dot {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 7px;
+      height: 7px;
+      background: $danger-color;
+      border-radius: 50%;
+      border: 1px solid #fff;
+    }
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    border-left: 1px solid $border-color;
+    margin-left: 0.5rem;
+    cursor: pointer;
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4F6EF7, #7b5ea7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .user-name {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: $text-primary;
+      line-height: 1.2;
+    }
+
+    .user-role {
+      font-size: 0.7rem;
+      color: $text-muted;
+    }
+  }
+}
+
+// =============================================
+// CARDS
+// =============================================
+.card {
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin-bottom: 1rem;
+
+  .card-header {
+    background: $card-bg;
+    border-bottom: 1px solid $border-color;
+    padding: 0.9rem 1.25rem;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: $text-primary;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      i {
+        color: $accent-color;
+      }
+    }
+  }
+
+  .card-body {
+    padding: 1.25rem;
+  }
+
+  .card-footer {
+    background: $card-bg;
+    border-top: 1px solid $border-color;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0 0 8px 8px;
+  }
+}
+
+// =============================================
+// CONTENT HEADER
+// =============================================
+.content-header {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: $text-primary;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+
+  .header-icon {
+    color: $accent-color;
+    font-size: 1.1rem;
+  }
+}
+
+// =============================================
+// BOTÕES
+// =============================================
+.btn {
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 6px;
+  padding: 0.4rem 1rem;
+  transition: all 0.2s;
+
+  &:focus {
+    box-shadow: none;
+  }
+}
+
+.btn-primary {
+  background-color: $accent-color;
+  border-color: $accent-color;
+
+  &:hover {
+    background-color: $accent-hover;
+    border-color: $accent-hover;
+  }
+}
+
+// =============================================
+// FORMULÁRIOS
+// =============================================
+.form-control {
+  border-radius: 6px;
+  border-color: $border-color;
+  font-size: 0.875rem;
+  padding: 0.45rem 0.75rem;
+  transition: border-color 0.2s;
+
+  &:focus {
+    border-color: $accent-color;
+    box-shadow: 0 0 0 0.2rem rgba(79, 110, 247, 0.15);
+  }
+}
+
+.form-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 0.3rem;
+}
+
+// =============================================
+// TABELA
+// =============================================
+.table {
+  font-size: 0.82rem;
+
+  thead th {
+    background-color: #f8f9fa;
+    border-top: none;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #888;
+    padding: 0.6rem 0.75rem;
+  }
+
+  tbody tr:hover {
+    background-color: #f8f9fc;
+  }
+
+  td {
+    padding: 0.55rem 0.75rem;
+    vertical-align: middle;
+    border-color: $border-color;
+  }
+}
+
+// =============================================
+// BADGES
+// =============================================
+.badge {
+  font-weight: 600;
+  padding: 0.3em 0.6em;
+  border-radius: 4px;
+}
+
+// =============================================
+// INDICADORES (DASHBOARD)
+// =============================================
+.indicator-card {
+  background: $card-bg;
+  border-radius: 8px;
+  border: 1px solid $border-color;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  .indicator-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    i {
+      font-size: 1.4rem;
+      color: #fff;
+    }
+  }
+
+  .indicator-content {
+    h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0;
+      color: $text-primary;
+    }
+
+    p {
+      font-size: 0.8rem;
+      color: $text-muted;
+      margin: 0;
+    }
+  }
+}
+
+// =============================================
+// SPINNERS
+// =============================================
+ngx-spinner {
+  .overlay {
+    background: rgba(0, 0, 0, 0.4) !important;
+  }
+}
+
+// =============================================
+// SWEET ALERT 2
+// =============================================
+.swal2-popup {
+  border-radius: 10px;
+  font-size: 0.9rem;
+}
+
+.swal2-confirm {
+  background-color: $accent-color !important;
+  border-radius: 6px !important;
+}
+
+// =============================================
+// NG-SELECT
+// =============================================
+.ng-select .ng-select-container {
+  border-radius: 6px;
+  border-color: $border-color;
+  font-size: 0.875rem;
+  min-height: 38px;
+
+  &:hover {
+    border-color: $accent-color;
+  }
+}
+
+.ng-select.ng-select-focused .ng-select-container {
+  border-color: $accent-color;
+  box-shadow: 0 0 0 0.2rem rgba(79, 110, 247, 0.15);
+}
+
+// =============================================
+// NGX-DATATABLE
+// =============================================
+.ngx-datatable.bootstrap {
+  font-size: 0.82rem;
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  overflow: hidden;
+
+  .datatable-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid $border-color;
+
+    .datatable-header-cell {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #888;
+      padding: 0.75rem 1rem;
+    }
+  }
+
+  .datatable-row-even {
+    background: #f9f9f9;
+  }
+
+  .datatable-body-cell {
+    padding: 0.6rem 1rem;
+    vertical-align: middle;
+  }
+}
+
+// =============================================
+// AUTENTICAÇÃO
+// =============================================
+.auth-height {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7ff 0%, #eef0f8 100%);
+}
+
+.auth-img-bg {
+  background: linear-gradient(135deg, #4F6EF7 0%, #7b5ea7 100%);
+}
+
+#login .card {
+  box-shadow: 0 8px 32px rgba(79, 110, 247, 0.12);
+  border: none;
+  border-radius: 14px;
+}
+
+// =============================================
+// RESPONSIVIDADE
+// =============================================
+@media (max-width: 992px) {
+  .app-sidebar {
+    transform: translateX(-100%);
+    width: 260px;
+
+    &.sidebar-open {
+      transform: translateX(0);
+    }
+  }
+
+  .main-panel {
+    margin-left: 0 !important;
+  }
+
+  .content-wrapper {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .content-wrapper {
+    padding: 0.75rem;
+  }
+}
+
+// =============================================
+// UTILITÁRIOS
+// =============================================
+.cursor-pointer { cursor: pointer; }
+.text-accent { color: $accent-color; }
+.bg-accent { background-color: $accent-color; }
+
+.shadow-card {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.rounded-lg {
+  border-radius: 10px !important;
+}
+
+.font-weight-600 { font-weight: 600; }
+.font-weight-700 { font-weight: 700; }
+
+// Fade in animation
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.3s ease-out forwards;
+}

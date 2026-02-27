@@ -1,0 +1,69 @@
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+
+  <!-- E-mail -->
+  <div class="form-group">
+    <label for="email">E-mail / Usuário</label>
+    <input
+      id="email"
+      type="email"
+      formControlName="email"
+      class="form-control"
+      [class.is-invalid]="emailInvalid"
+      placeholder="seu@email.com"
+      autocomplete="email"
+    />
+    @if (emailInvalid) {
+      <div class="invalid-feedback">
+        <i class="fas fa-exclamation-circle mr-1"></i>{{ emailErrorMessage }}
+      </div>
+    }
+  </div>
+
+  <!-- Senha -->
+  <div class="form-group">
+    <label for="password">Senha</label>
+    <div class="input-group">
+      <input
+        id="password"
+        [type]="showPassword() ? 'text' : 'password'"
+        formControlName="password"
+        class="form-control"
+        [class.is-invalid]="passwordInvalid"
+        placeholder="Digite sua senha"
+        autocomplete="current-password"
+      />
+      <div class="input-group-append">
+        <button type="button" class="btn btn-outline-secondary" (click)="togglePasswordVisibility()">
+          <i class="fas" [class.fa-eye]="!showPassword()" [class.fa-eye-slash]="showPassword()"></i>
+        </button>
+      </div>
+      @if (passwordInvalid) {
+        <div class="invalid-feedback">
+          <i class="fas fa-exclamation-circle mr-1"></i>{{ passwordErrorMessage }}
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Lembrar + Esqueci -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="custom-control custom-checkbox">
+      <input type="checkbox" class="custom-control-input" id="rememberMe" formControlName="rememberMe">
+      <label class="custom-control-label" for="rememberMe" style="font-size:0.82rem;">Manter logado</label>
+    </div>
+    <button type="button" class="btn btn-link p-0" style="font-size:0.82rem;" (click)="onForgotPassword()">
+      Esqueceu a senha?
+    </button>
+  </div>
+
+  <!-- Botão Entrar -->
+  <button type="submit" class="btn btn-primary btn-block" [disabled]="loading()">
+    @if (loading()) {
+      <span class="spinner-border spinner-border-sm mr-2" role="status"></span>
+      Entrando...
+    } @else {
+      <i class="fas fa-sign-in-alt mr-2"></i>Entrar
+    }
+  </button>
+
+</form>
