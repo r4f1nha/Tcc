@@ -27,8 +27,8 @@ public class Cliente {
     @Column(name = "telefone", nullable = false, length = 15)
     private String telefone;
 
-    public Cliente(){
-
+    protected Cliente() {
+        // JPA only
     }
 
     public Cliente(String nome, String email, String cpf, String telefone){
