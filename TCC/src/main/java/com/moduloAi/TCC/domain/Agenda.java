@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.OffsetDateTime;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -14,7 +15,7 @@ import java.time.OffsetDateTime;
 public class Agenda {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @ManyToOne
@@ -23,7 +24,6 @@ public class Agenda {
 
     private String titulo;
     private String descricao;
-    private String cnpj;
     private OffsetDateTime startAt;
     private OffsetDateTime endAt;
 
@@ -31,14 +31,12 @@ public class Agenda {
             Cliente cliente,
             String titulo,
             String descricao,
-            String cnpj,
             OffsetDateTime startAt,
             OffsetDateTime endAt
     ) {
         this.cliente = cliente;
         this.titulo = titulo;
         this.descricao = descricao;
-        this.cnpj = cnpj;
         this.startAt = startAt;
         this.endAt = endAt;
     }
