@@ -1,6 +1,7 @@
 package com.moduloAi.TCC.controller;
 
 import com.moduloAi.TCC.domain.Etiqueta;
+import com.moduloAi.TCC.dto.EtiquetaRequest;
 import com.moduloAi.TCC.dto.EtiquetaResponse;
 import com.moduloAi.TCC.service.EtiquetaService;
 import org.springframework.web.bind.annotation.*;
@@ -29,8 +30,8 @@ public class EtiquetaController {
    }
 
    @PostMapping("/create")
-    public Etiqueta create(@RequestBody EtiquetaResponse etiquetaResponse){
-        return etiquetaService.create(etiquetaResponse);
+    public Etiqueta create(@RequestBody EtiquetaRequest etiquetaRequest){
+        return etiquetaService.create(etiquetaRequest);
    }
 
    @PutMapping("/update")
