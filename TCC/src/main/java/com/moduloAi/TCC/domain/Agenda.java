@@ -12,6 +12,7 @@ import java.util.Optional;
 @Setter
 @NoArgsConstructor
 @Entity
+@Table(name = "agenda")
 public class Agenda {
 
     @Id
