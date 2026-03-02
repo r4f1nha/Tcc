@@ -20,7 +20,7 @@ public class EtiquetaController {
    }
 
    @GetMapping("/getAllEtiquetas")
-    public List<Etiqueta> list(){
+    public List<EtiquetaResponse> list(){
        return etiquetaService.list();
    }
 
@@ -39,7 +39,7 @@ public class EtiquetaController {
       return etiquetaService.update(etiquetaResponse);
    }
 
-   @DeleteMapping("/delete")
+   @DeleteMapping("/delete/{id}")
     public void delete(@PathVariable long id){
        etiquetaService.delete(id);
    }
