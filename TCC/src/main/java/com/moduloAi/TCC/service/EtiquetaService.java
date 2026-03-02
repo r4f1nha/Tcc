@@ -1,6 +1,7 @@
 package com.moduloAi.TCC.service;
 
 import com.moduloAi.TCC.domain.Etiqueta;
+import com.moduloAi.TCC.dto.EtiquetaRequest;
 import com.moduloAi.TCC.dto.EtiquetaResponse;
 import com.moduloAi.TCC.repository.EtiquetaRepository;
 import org.springframework.stereotype.Service;
@@ -34,10 +35,10 @@ public class EtiquetaService {
     }
 
     @PostMapping("/create")
-    public Etiqueta create(EtiquetaResponse etiquetaResponse){
-        Etiqueta etiqueta = new Etiqueta(etiquetaResponse.nome(),
-                etiquetaResponse.descricao(),
-                etiquetaResponse.cor());
+    public Etiqueta create(EtiquetaRequest etiquetaRequest){
+        Etiqueta etiqueta = new Etiqueta(etiquetaRequest.nome(),
+                etiquetaRequest.descricao(),
+                etiquetaRequest.cor());
 
         return etiquetaRepository.save(etiqueta);
     }
