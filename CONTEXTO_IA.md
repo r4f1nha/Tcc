@@ -32,12 +32,12 @@
 
 | Ponto | Status |
 |---|---|
-| CORS configurado | ❌ Não |
-| Prefixo `/api` no backend | ❌ Não |
+| CORS configurado | ✅ Sim — `localhost:4200` liberado |
+| Prefixo `/api` no backend | ✅ Sim — `context-path=/api` |
 | JWT / Spring Security | ❌ Não |
-| Serviços Angular consumindo API real | ❌ Não (mock/devMode) |
+| Serviços Angular consumindo API real | ✅ Sim — services apontam para endpoints reais |
 | WebSocket backend | ❌ Não |
-| Nomenclatura alinhada (PT ↔ EN) | ❌ Parcial |
+| Nomenclatura alinhada (PT ↔ EN) | ✅ Sim — Lead, Label, Appointment |
 
 ---
 
@@ -45,14 +45,14 @@
 
 ### FASE 1 — Integração Básica (Backend → Frontend)
 
-- [ ] **[BACK]** Adicionar `server.servlet.context-path=/api` no `application.properties`
-- [ ] **[BACK]** Criar `CorsConfig.java` — liberar `http://localhost:4200`
-- [ ] **[BACK]** Padronizar nomenclatura: `Cliente` → `Lead`, `Etiqueta` → `Label`
-- [ ] **[BACK]** Corrigir `@PathVariable` ausente em `getClienteById` e `getEtiquetaById`
-- [ ] **[FRONT]** Atualizar `environment.ts` — confirmar `apiUrl: 'http://localhost:8080/api'`
-- [ ] **[FRONT]** Substituir dados mock em `lead.service.ts` por chamadas reais a `/api/leads`
-- [ ] **[FRONT]** Substituir dados mock em `appointment.service.ts` por chamadas reais a `/api/agenda`
-- [ ] **[FRONT]** Substituir dados mock em `label.service.ts` por chamadas reais a `/api/labels`
+- [x] **[BACK]** Adicionar `server.servlet.context-path=/api` no `application.properties`
+- [x] **[BACK]** Criar `CorsConfig.java` — liberar `http://localhost:4200`
+- [x] **[BACK]** Padronizar nomenclatura: `Cliente` → `Lead`, `Etiqueta` → `Label`, `Agenda` → `Appointment`
+- [x] **[BACK]** Corrigir REST: `@PathVariable`, `ResponseEntity`, verbos HTTP corretos, remover anotações MVC dos services
+- [x] **[FRONT]** `environment.ts` já configurado: `apiUrl: 'http://localhost:8080/api'`
+- [x] **[FRONT]** `lead.service.ts` já aponta para `/api/leads` (sem mock)
+- [x] **[FRONT]** `appointment.service.ts` já aponta para `/api/appointments` (sem mock)
+- [x] **[FRONT]** `label.service.ts` já aponta para `/api/labels` (sem mock)
 
 ### FASE 2 — Autenticação
 
