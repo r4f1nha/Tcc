@@ -1,11 +1,17 @@
 package com.moduloAi.TCC.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
+import java.math.BigDecimal;
 
 public record LeadRequest(
-        @NotBlank String name,
-        @Email String email,
-        String cpf,
-        String phone
-) {}
+        String name,
+        String company,
+        String origin,
+        String email,
+        String phone,
+        BigDecimal value,
+        String stage,
+        String priority,
+        String nextStep,
+        String notes
+) {
+}
