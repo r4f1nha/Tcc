@@ -3,7 +3,6 @@ package com.moduloAi.TCC.controller;
 import com.moduloAi.TCC.dto.LeadRequest;
 import com.moduloAi.TCC.dto.LeadResponse;
 import com.moduloAi.TCC.service.LeadService;
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,18 +25,17 @@ public class LeadController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<LeadResponse> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(leadService.findById(id));
+    public ResponseEntity<LeadResponse> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(leadService.getById(id));
     }
 
     @PostMapping
-    public ResponseEntity<LeadResponse> create(@RequestBody @Valid LeadRequest request) {
+    public ResponseEntity<LeadResponse> create(@RequestBody LeadRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(leadService.create(request));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<LeadResponse> update(@PathVariable Long id,
-                                               @RequestBody @Valid LeadRequest request) {
+    public ResponseEntity<LeadResponse> update(@PathVariable Long id, @RequestBody LeadRequest request) {
         return ResponseEntity.ok(leadService.update(id, request));
     }
 
