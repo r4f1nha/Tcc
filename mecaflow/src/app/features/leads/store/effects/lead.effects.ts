@@ -13,11 +13,25 @@ export class LeadEffects {
   readonly loadLeads$ = createEffect(() =>
     this.actions$.pipe(
       ofType(LeadActions.loadLeads),
-      switchMap(({ filters }) =>
-        this.leadService.getAll(filters).pipe(
-          map((response) => LeadActions.loadLeadsSuccess({ response })),
+      switchMap(() =>
+        this.leadService.list().pipe(
+          map((content) =>
+            LeadActions.loadLeadsSuccess({
+              response: {
+                content,
+                totalElements: content.length,
+                totalPages: 1,
+                size: content.length,
+                number: 0,
+              },
+            }),
+          ),
           catchError((error) =>
-            of(LeadActions.loadLeadsFailure({ error: error.message })),
+            of(
+              LeadActions.loadLeadsFailure({
+                error: error?.message ?? 'Erro ao carregar leads',
+              }),
+            ),
           ),
         ),
       ),
@@ -28,10 +42,14 @@ export class LeadEffects {
     this.actions$.pipe(
       ofType(LeadActions.loadLeadDetail),
       switchMap(({ id }) =>
-        this.leadService.getById(id).pipe(
+        this.leadService.getById(Number(id)).pipe(
           map((lead) => LeadActions.loadLeadDetailSuccess({ lead })),
           catchError((error) =>
-            of(LeadActions.loadLeadDetailFailure({ error: error.message })),
+            of(
+              LeadActions.loadLeadDetailFailure({
+                error: error?.message ?? 'Erro ao carregar detalhe do lead',
+              }),
+            ),
           ),
         ),
       ),
@@ -45,21 +63,11 @@ export class LeadEffects {
         this.leadService.create(payload).pipe(
           map((lead) => LeadActions.createLeadSuccess({ lead })),
           catchError((error) =>
-            of(LeadActions.createLeadFailure({ error: error.message })),
-          ),
-        ),
-      ),
-    ),
-  );
-
-  readonly importLeads$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(LeadActions.importLeads),
-      switchMap(({ file }) =>
-        this.leadService.importFromCsv(file).pipe(
-          map((result) => LeadActions.importLeadsSuccess({ result })),
-          catchError((error) =>
-            of(LeadActions.importLeadsFailure({ error: error.message })),
+            of(
+              LeadActions.createLeadFailure({
+                error: error?.message ?? 'Erro ao criar lead',
+              }),
+            ),
           ),
         ),
       ),

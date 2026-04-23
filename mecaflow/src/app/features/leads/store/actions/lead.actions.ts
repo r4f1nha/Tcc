@@ -1,11 +1,5 @@
-import { createActionGroup, props } from '@ngrx/store';
-import {
-  CreateLeadPayload,
-  Lead,
-  LeadFilters,
-  LeadImportResult,
-  PaginatedResponse,
-} from '../../models/lead.model';
+import { createActionGroup, emptyProps, props } from '@ngrx/store';
+import { CreateLeadPayload, Lead, LeadFilters, LeadImportResult, PaginatedResponse } from '../../models/lead.model';
 
 export const LeadActions = createActionGroup({
   source: 'Leads',
@@ -18,20 +12,22 @@ export const LeadActions = createActionGroup({
     'Load Lead Detail Success': props<{ lead: Lead }>(),
     'Load Lead Detail Failure': props<{ error: string }>(),
 
-    'Set Filters': props<{ filters: LeadFilters }>(),
-
     'Create Lead': props<{ payload: CreateLeadPayload }>(),
     'Create Lead Success': props<{ lead: Lead }>(),
     'Create Lead Failure': props<{ error: string }>(),
 
-    'Update Lead': props<{ id: string; payload: Partial<CreateLeadPayload> }>(),
+    'Update Lead': props<{ id: number; payload: CreateLeadPayload }>(),
     'Update Lead Success': props<{ lead: Lead }>(),
+    'Update Lead Failure': props<{ error: string }>(),
 
-    'Delete Lead': props<{ id: string }>(),
-    'Delete Lead Success': props<{ id: string }>(),
+    'Delete Lead': props<{ id: number }>(),
+    'Delete Lead Success': props<{ id: number }>(),
+    'Delete Lead Failure': props<{ error: string }>(),
 
     'Import Leads': props<{ file: File }>(),
     'Import Leads Success': props<{ result: LeadImportResult }>(),
     'Import Leads Failure': props<{ error: string }>(),
+
+    'Clear Selected Lead': emptyProps(),
   },
 });

@@ -1,22 +1,28 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
-import { LeadState, leadAdapter } from '../reducers/lead.reducer';
+import { LeadState, selectAll, selectEntities } from '../reducers/lead.reducer';
 
 export const selectLeadState = createFeatureSelector<LeadState>('leads');
 
-const { selectAll, selectEntities } = leadAdapter.getSelectors();
-
-export const selectAllLeads = createSelector(selectLeadState, selectAll);
-
-export const selectLeadEntities = createSelector(selectLeadState, selectEntities);
-
-export const selectSelectedLead = createSelector(
+export const selectAllLeads = createSelector(
   selectLeadState,
-  (state) => state.selectedLead,
+  (state) => selectAll(state),
 );
 
-export const selectLeadFilters = createSelector(
+export const selectLeadEntities = createSelector(
   selectLeadState,
-  (state) => state.filters,
+  (state) => selectEntities(state),
+);
+
+export const selectSelectedLeadId = createSelector(
+  selectLeadState,
+  (state) => state.selectedLeadId,
+);
+
+export const selectSelectedLead = createSelector(
+  selectLeadEntities,
+  selectSelectedLeadId,
+  (entities, selectedLeadId) =>
+    selectedLeadId != null ? entities[selectedLeadId] ?? null : null,
 );
 
 export const selectLeadLoading = createSelector(
@@ -29,22 +35,22 @@ export const selectLeadError = createSelector(
   (state) => state.error,
 );
 
+export const selectLeadFilters = createSelector(
+  selectLeadState,
+  (state) => state.filters,
+);
+
 export const selectLeadPagination = createSelector(
   selectLeadState,
   (state) => ({
-    page: state.filters.page,
-    pageSize: state.filters.pageSize,
+    page: state.page,
+    pageSize: state.pageSize,
     totalItems: state.totalItems,
     totalPages: state.totalPages,
   }),
 );
 
-export const selectImportResult = createSelector(
+export const selectLeadImportResult = createSelector(
   selectLeadState,
   (state) => state.importResult,
-);
-
-export const selectImporting = createSelector(
-  selectLeadState,
-  (state) => state.importing,
 );

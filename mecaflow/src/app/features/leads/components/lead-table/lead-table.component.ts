@@ -16,8 +16,8 @@ import { SkeletonComponent } from '../../../../shared/components/skeleton/skelet
             <th>Nome</th>
             <th>Telefone</th>
             <th>Status</th>
-            <th>Agente</th>
-            <th>Etiquetas</th>
+            <th>Empresa</th>
+            <th>Prioridade</th>
             <th>Criado em</th>
           </tr>
         </thead>
@@ -42,24 +42,16 @@ import { SkeletonComponent } from '../../../../shared/components/skeleton/skelet
                     <span class="font-weight-600">{{ lead.name }}</span>
                   </div>
                 </td>
-                <td class="text-muted" style="font-size:0.8rem;">{{ lead.phone }}</td>
+                <td class="text-muted" style="font-size:0.8rem;">{{ lead.phone || '—' }}</td>
                 <td>
                   <span class="badge badge-pill" [class]="getStatusClass(lead.status)">
                     {{ getStatusLabel(lead.status) }}
                   </span>
                 </td>
-                <td class="text-muted">{{ lead.assignedAgentName ?? '—' }}</td>
-                <td>
-                  @for (label of lead.labels; track label.id) {
-                    <span class="badge badge-pill mr-1"
-                      [style.background-color]="label.color + '30'"
-                      [style.color]="label.color">
-                      {{ label.name }}
-                    </span>
-                  }
-                </td>
+                <td class="text-muted">{{ lead.company || '—' }}</td>
+                <td class="text-muted">{{ lead.priority || '—' }}</td>
                 <td class="text-muted" style="font-size:0.8rem;">
-                  {{ lead.createdAt | date:'dd/MM/yyyy' }}
+                  {{ lead.createdAt ? (lead.createdAt | date:'dd/MM/yyyy') : '—' }}
                 </td>
               </tr>
             } @empty {
@@ -78,26 +70,28 @@ import { SkeletonComponent } from '../../../../shared/components/skeleton/skelet
 export class LeadTableComponent {
   readonly leads = input.required<ReadonlyArray<Lead>>();
   readonly loading = input(false);
-  readonly leadSelected = output<string>();
+  readonly leadSelected = output<number>();
 
   getStatusClass(status: LeadStatus): string {
     const classes: Record<LeadStatus, string> = {
-      [LeadStatus.NEW]: 'badge-info',
-      [LeadStatus.CONTACTED]: 'badge-warning',
-      [LeadStatus.QUALIFIED]: 'badge-primary',
-      [LeadStatus.CONVERTED]: 'badge-success',
-      [LeadStatus.LOST]: 'badge-danger',
+      NOVO_LEAD: 'badge-info',
+      QUALIFICACAO: 'badge-primary',
+      PROPOSTA: 'badge-warning',
+      NEGOCIACAO: 'badge-secondary',
+      GANHO: 'badge-success',
+      PERDIDO: 'badge-danger',
     };
     return classes[status];
   }
 
   getStatusLabel(status: LeadStatus): string {
     const labels: Record<LeadStatus, string> = {
-      [LeadStatus.NEW]: 'Novo',
-      [LeadStatus.CONTACTED]: 'Contatado',
-      [LeadStatus.QUALIFIED]: 'Qualificado',
-      [LeadStatus.CONVERTED]: 'Convertido',
-      [LeadStatus.LOST]: 'Perdido',
+      NOVO_LEAD: 'Novo lead',
+      QUALIFICACAO: 'Qualificação',
+      PROPOSTA: 'Proposta',
+      NEGOCIACAO: 'Negociação',
+      GANHO: 'Ganho',
+      PERDIDO: 'Perdido',
     };
     return labels[status];
   }

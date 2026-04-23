@@ -1,61 +1,63 @@
-export enum LeadStatus {
-  NEW = 'NEW',
-  CONTACTED = 'CONTACTED',
-  QUALIFIED = 'QUALIFIED',
-  CONVERTED = 'CONVERTED',
-  LOST = 'LOST',
-}
+export type LeadStatus =
+  | 'NOVO_LEAD'
+  | 'QUALIFICACAO'
+  | 'PROPOSTA'
+  | 'NEGOCIACAO'
+  | 'GANHO'
+  | 'PERDIDO';
+
+export type LeadPriority =
+  | 'BAIXA'
+  | 'MEDIA'
+  | 'ALTA';
 
 export interface Lead {
-  readonly id: string;
-  readonly name: string;
-  readonly phone: string;
-  readonly email: string | null;
-  readonly tenantId: string;
-  readonly status: LeadStatus;
-  readonly labels: ReadonlyArray<LeadLabel>;
-  readonly assignedAgentId: string | null;
-  readonly assignedAgentName: string | null;
-  readonly source: string;
-  readonly avatarUrl: string | null;
-  readonly createdAt: string;
-  readonly updatedAt: string;
-}
-
-export interface LeadLabel {
-  readonly id: string;
-  readonly name: string;
-  readonly color: string;
-}
-
-export interface LeadFilters {
-  readonly search: string;
-  readonly status: LeadStatus | null;
-  readonly labelId: string | null;
-  readonly agentId: string | null;
-  readonly dateFrom: string | null;
-  readonly dateTo: string | null;
-  readonly page: number;
-  readonly pageSize: number;
-}
-
-export interface PaginatedResponse<T> {
-  readonly data: ReadonlyArray<T>;
-  readonly total: number;
-  readonly page: number;
-  readonly pageSize: number;
-  readonly totalPages: number;
-}
-
-export interface LeadImportResult {
-  readonly totalRows: number;
-  readonly imported: number;
-  readonly errors: ReadonlyArray<{ row: number; message: string }>;
+  id: number;
+  name: string;
+  company?: string;
+  origin?: string;
+  email?: string;
+  phone?: string;
+  value?: number;
+  stage: LeadStatus;
+  priority: LeadPriority;
+  status: LeadStatus;
+  nextStep?: string;
+  notes?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface CreateLeadPayload {
-  readonly name: string;
-  readonly phone: string;
-  readonly email: string | null;
-  readonly source: string;
+  name: string;
+  company?: string;
+  origin?: string;
+  email?: string;
+  phone?: string;
+  value?: number;
+  stage: LeadStatus;
+  priority: LeadPriority;
+  nextStep?: string;
+  notes?: string;
+}
+
+export interface LeadFilters {
+  search?: string;
+  status?: LeadStatus | '';
+  page?: number;
+  pageSize?: number;
+}
+
+export interface LeadImportResult {
+  success: boolean;
+  imported: number;
+  failed: number;
+}
+
+export interface PaginatedResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
 }
