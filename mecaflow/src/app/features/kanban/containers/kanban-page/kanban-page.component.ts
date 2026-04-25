@@ -1,216 +1,496 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
-import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
-import { Store } from '@ngrx/store';
-import { KanbanActions } from '../../store/actions/kanban.actions';
 import {
-  selectAllOrders,
-  selectKanbanFilters,
-  selectKanbanLoading,
-  selectViewMode,
-} from '../../store/selectors/kanban.selectors';
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  inject,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import {
-  KANBAN_COLUMNS,
+  CdkDragDrop,
+  DragDropModule,
+} from '@angular/cdk/drag-drop';
+
+import {
   ServiceOrder,
+  ServiceOrderKanbanResponse,
   ServiceOrderStatus,
-  STATUS_ORDER,
-  ViewMode,
-} from '../../models/kanban.model';
-import { DatePipe, CurrencyPipe } from '@angular/common';
-import { SkeletonComponent } from '../../../../shared/components/skeleton/skeleton.component';
+} from '../../models/service-order';
+import { ServiceOrderService } from '../../services/service-order.service';
 
 @Component({
   selector: 'app-kanban-page',
   standalone: true,
-  imports: [DragDropModule, DatePipe, CurrencyPipe, SkeletonComponent],
+  imports: [CommonModule, FormsModule, DragDropModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <!-- Cabeçalho -->
-    <div class="row mb-1">
-      <div class="col-12">
-        <div class="content-header d-flex align-items-center justify-content-between">
-          <div>
-            <i class="fas fa-clipboard-list header-icon"></i>&nbsp;Kanban
+    <div class="kanban-page">
+      <div class="kanban-header">
+        <div class="kanban-title">
+          <i class="fas fa-clipboard-list"></i>
+          <span>Kanban</span>
+        </div>
+
+        <button class="btn btn-primary new-order-button" (click)="goToCreate()">
+          <i class="fas fa-plus"></i>
+          Nova OS
+        </button>
+      </div>
+
+      <div class="kanban-filters">
+        <div class="filter-field">
+          <label>Buscar cliente</label>
+          <input
+            class="form-control"
+            type="text"
+            [(ngModel)]="customerFilter"
+            (ngModelChange)="applyFilters()"
+            placeholder="Digite o nome do cliente"
+          />
+        </div>
+
+        <div class="filter-field">
+          <label>Status</label>
+          <select
+            class="form-control"
+            [(ngModel)]="statusFilter"
+            (ngModelChange)="applyFilters()"
+          >
+            <option value="">Todos</option>
+            <option value="ABERTA">Aberta</option>
+            <option value="EM_ANALISE">Em análise</option>
+            <option value="AGUARDANDO_CLIENTE">Aguardando cliente</option>
+            <option value="FINALIZADA">Finalizada</option>
+          </select>
+        </div>
+
+        <button class="btn btn-outline-secondary clear-button" type="button" (click)="clearFilters()">
+          Limpar filtros
+        </button>
+      </div>
+
+      <div class="kanban-board">
+        <div class="kanban-column" *ngFor="let column of columns">
+          <div class="kanban-column-header">
+            <span class="column-title">{{ column.label }}</span>
+            <span class="column-count">{{ getOrders(column.status).length }}</span>
           </div>
-          <div class="d-flex align-items-center">
-            <div class="btn-group btn-group-sm mr-2">
-              <button type="button" (click)="onToggleView()" class="btn"
-                [class.btn-primary]="viewMode() === ViewMode.BOARD"
-                [class.btn-outline-secondary]="viewMode() !== ViewMode.BOARD">
-                <i class="fas fa-columns mr-1"></i>Board
-              </button>
-              <button type="button" (click)="onToggleView()" class="btn"
-                [class.btn-primary]="viewMode() === ViewMode.LIST"
-                [class.btn-outline-secondary]="viewMode() !== ViewMode.LIST">
-                <i class="fas fa-list mr-1"></i>Lista
-              </button>
+
+          <div
+            class="kanban-column-body"
+            cdkDropList
+            [id]="column.status"
+            [cdkDropListData]="getOrders(column.status)"
+            [cdkDropListConnectedTo]="dropListIds"
+            (cdkDropListDropped)="drop($event, column.status)"
+          >
+            <div
+              *ngFor="let order of getOrders(column.status)"
+              class="order-card"
+              cdkDrag
+              [cdkDragData]="order"
+              (click)="goToDetail(order.id)"
+            >
+              <div class="order-customer">
+                {{ order.customerName || 'Cliente não informado' }}
+              </div>
+
+              <div class="order-vehicle">
+                {{ order.vehicle || 'Sem veículo' }}
+              </div>
+
+              <div class="order-description">
+                {{ order.problemDescription || 'Sem descrição' }}
+              </div>
+
+              <div class="order-footer">
+                <span class="priority-badge">
+                  {{ order.priority || 'Sem prioridade' }}
+                </span>
+
+                <div class="order-actions">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-secondary"
+                    [disabled]="!getPreviousStatus(order.status)"
+                    (click)="movePrevious(order, $event)"
+                  >
+                    Voltar
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-primary"
+                    [disabled]="!getNextStatus(order.status)"
+                    (click)="moveNext(order, $event)"
+                  >
+                    Avançar
+                  </button>
+                </div>
+              </div>
             </div>
-            <button class="btn btn-primary btn-sm">
-              <i class="fas fa-plus mr-1"></i>Nova OS
-            </button>
+
+            <div *ngIf="getOrders(column.status).length === 0" class="empty-column">
+              Nenhuma OS
+            </div>
           </div>
         </div>
       </div>
     </div>
-
-    @if (loading()) {
-      <div class="row">
-        @for (i of [1,2,3,4]; track i) {
-          <div class="col-md-3 mb-3">
-            <app-skeleton variant="card" />
-          </div>
-        }
-      </div>
-    } @else if (viewMode() === ViewMode.BOARD) {
-      <!-- Board View -->
-      <div class="row">
-        @for (column of columns; track column.status) {
-          <div class="col-lg-3 col-md-6 mb-3">
-            <div class="card">
-              <div class="card-header d-flex align-items-center justify-content-between py-2">
-                <div class="d-flex align-items-center">
-                  <span class="rounded-circle mr-2" style="width:10px;height:10px;display:inline-block;" [style.background-color]="column.color"></span>
-                  <span class="font-weight-600 small">{{ column.label }}</span>
-                </div>
-                <span class="badge badge-secondary badge-pill">{{ getOrdersByStatus(column.status).length }}</span>
-              </div>
-              <div class="card-body p-2"
-                cdkDropList
-                [cdkDropListData]="column.status"
-                (cdkDropListDropped)="onDrop($event)"
-                style="min-height: 100px;">
-                @for (order of getOrdersByStatus(column.status); track order.id) {
-                  <div cdkDrag [cdkDragData]="order"
-                    class="card mb-2"
-                    style="cursor: grab;"
-                    [class.border-danger]="isOverdue(order)">
-                    <div class="card-body p-3">
-                      <h6 class="card-title mb-1" style="font-size:0.85rem;">{{ order.title }}</h6>
-                      <p class="text-muted mb-2" style="font-size:0.75rem;">{{ order.leadName }}</p>
-                      <div class="d-flex align-items-center justify-content-between">
-                        <span class="text-primary font-weight-600" style="font-size:0.75rem;">
-                          {{ order.estimatedValue | currency:'BRL':'symbol':'1.0-0' }}
-                        </span>
-                        <span style="font-size:0.75rem;"
-                          [class.text-danger]="isOverdue(order)"
-                          [class.text-muted]="!isOverdue(order)">
-                          {{ order.deadline | date:'dd/MM' }}
-                        </span>
-                      </div>
-                      @if (order.assignedAgentName) {
-                        <div class="mt-2 d-flex align-items-center">
-                          <span class="badge badge-pill mr-1" style="background:rgba(79,110,247,0.15);color:#4F6EF7;font-size:10px;">
-                            {{ order.assignedAgentName.charAt(0) }}
-                          </span>
-                          <small class="text-muted">{{ order.assignedAgentName }}</small>
-                        </div>
-                      }
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
-          </div>
-        }
-      </div>
-    } @else {
-      <!-- List View -->
-      <div class="card">
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover table-sm mb-0">
-              <thead class="thead-light">
-                <tr>
-                  <th>Título</th>
-                  <th>Lead</th>
-                  <th>Status</th>
-                  <th>Responsável</th>
-                  <th>Valor</th>
-                  <th>Prazo</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (order of allOrders(); track order.id) {
-                  <tr>
-                    <td class="font-weight-600">{{ order.title }}</td>
-                    <td class="text-muted">{{ order.leadName }}</td>
-                    <td>
-                      <span class="badge badge-pill"
-                        [style.background-color]="getColumnColor(order.status) + '20'"
-                        [style.color]="getColumnColor(order.status)">
-                        {{ getColumnLabel(order.status) }}
-                      </span>
-                    </td>
-                    <td class="text-muted">{{ order.assignedAgentName ?? '—' }}</td>
-                    <td class="text-primary font-weight-600" style="font-size:0.8rem;">
-                      {{ order.estimatedValue | currency:'BRL':'symbol':'1.0-0' }}
-                    </td>
-                    <td style="font-size:0.8rem;"
-                      [class.text-danger]="isOverdue(order)"
-                      [class.text-muted]="!isOverdue(order)">
-                      {{ order.deadline | date:'dd/MM/yyyy' }}
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    }
   `,
+  styles: [
+    `
+      .kanban-page {
+        width: 100%;
+        min-height: calc(100vh - 80px);
+        background: #f3f4f6;
+        padding: 28px;
+      }
+
+      .kanban-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+      }
+
+      .kanban-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 28px;
+        font-weight: 700;
+        color: #1f2937;
+      }
+
+      .new-order-button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 10px;
+        padding: 10px 18px;
+        font-weight: 600;
+      }
+
+      .kanban-filters {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 18px;
+        margin-bottom: 24px;
+        display: grid;
+        grid-template-columns: 1fr 260px auto;
+        gap: 16px;
+        align-items: end;
+      }
+
+      .filter-field label {
+        display: block;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 8px;
+      }
+
+      .form-control {
+        background: #ffffff;
+        color: #111827;
+        border: 1px solid #dbe1ea;
+        border-radius: 8px;
+        min-height: 44px;
+      }
+
+      .clear-button {
+        min-height: 44px;
+        border-radius: 8px;
+        font-weight: 600;
+      }
+
+      .kanban-board {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(240px, 1fr));
+        gap: 24px;
+      }
+
+      .kanban-column {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+        overflow: hidden;
+        min-height: 220px;
+      }
+
+      .kanban-column-header {
+        min-height: 72px;
+        padding: 18px 20px;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #ffffff;
+      }
+
+      .column-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1f2937;
+      }
+
+      .column-count {
+        min-width: 28px;
+        height: 28px;
+        padding: 0 8px;
+        border-radius: 8px;
+        background: #6b7280;
+        color: #ffffff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+      }
+
+      .kanban-column-body {
+        padding: 16px;
+        background: #ffffff;
+        min-height: 180px;
+      }
+
+      .order-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 14px;
+        margin-bottom: 12px;
+        box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06);
+        cursor: grab;
+      }
+
+      .order-card:active {
+        cursor: grabbing;
+      }
+
+      .cdk-drag-preview {
+        box-sizing: border-box;
+        border-radius: 12px;
+        box-shadow: 0 16px 35px rgba(15, 23, 42, 0.25);
+      }
+
+      .cdk-drag-placeholder {
+        opacity: 0.25;
+      }
+
+      .cdk-drop-list-dragging .order-card:not(.cdk-drag-placeholder) {
+        transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+      }
+
+      .order-customer {
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 4px;
+      }
+
+      .order-vehicle {
+        font-size: 13px;
+        color: #64748b;
+        margin-bottom: 8px;
+      }
+
+      .order-description {
+        font-size: 14px;
+        color: #374151;
+        margin-bottom: 12px;
+      }
+
+      .order-footer {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .order-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: space-between;
+      }
+
+      .order-actions button {
+        flex: 1;
+      }
+
+      .priority-badge {
+        width: fit-content;
+        border-radius: 999px;
+        background: #f3f4f6;
+        color: #374151;
+        padding: 5px 10px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .empty-column {
+        color: #64748b;
+        font-size: 15px;
+        padding: 20px 10px;
+      }
+    `,
+  ],
 })
 export class KanbanPageComponent implements OnInit {
-  private readonly store = inject(Store);
+  private readonly serviceOrderService = inject(ServiceOrderService);
+  private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef);
 
-  readonly allOrders = this.store.selectSignal(selectAllOrders);
-  readonly viewMode = this.store.selectSignal(selectViewMode);
-  readonly loading = this.store.selectSignal(selectKanbanLoading);
-  readonly filters = this.store.selectSignal(selectKanbanFilters);
+  allOrders: ServiceOrder[] = [];
 
-  protected readonly ViewMode = ViewMode;
-  readonly columns = KANBAN_COLUMNS;
+  customerFilter = '';
+  statusFilter: ServiceOrderStatus | '' = '';
+
+  kanban: ServiceOrderKanbanResponse = {
+    ABERTA: [],
+    EM_ANALISE: [],
+    AGUARDANDO_CLIENTE: [],
+    FINALIZADA: [],
+    CANCELADA: [],
+  };
+
+  columns: Array<{ label: string; status: ServiceOrderStatus }> = [
+    { label: 'Aberta', status: ServiceOrderStatus.ABERTA },
+    { label: 'Em análise', status: ServiceOrderStatus.EM_ANALISE },
+    { label: 'Aguardando cliente', status: ServiceOrderStatus.AGUARDANDO_CLIENTE },
+    { label: 'Finalizada', status: ServiceOrderStatus.FINALIZADA },
+  ];
+
+  dropListIds = this.columns.map((column) => column.status);
 
   ngOnInit(): void {
-    this.store.dispatch(KanbanActions.loadServiceOrders({ filters: this.filters() }));
+    this.loadKanban();
   }
 
-  getOrdersByStatus(status: ServiceOrderStatus): ReadonlyArray<ServiceOrder> {
-    return this.allOrders().filter((o) => o.status === status);
+  loadKanban(): void {
+    this.serviceOrderService.list().subscribe({
+      next: (orders) => {
+        this.allOrders = orders;
+        this.applyFilters();
+      },
+      error: (err) => {
+        console.error('Erro ao carregar kanban', err);
+      },
+    });
   }
 
-  isOverdue(order: ServiceOrder): boolean {
-    return (
-      new Date(order.deadline) < new Date() &&
-      order.status !== ServiceOrderStatus.COMPLETED
-    );
+  applyFilters(): void {
+    const customer = this.customerFilter.trim().toLowerCase();
+
+    const filteredOrders = this.allOrders.filter((order) => {
+      const matchCustomer =
+        !customer ||
+        (order.customerName || '').toLowerCase().includes(customer);
+
+      const matchStatus =
+        !this.statusFilter || order.status === this.statusFilter;
+
+      return matchCustomer && matchStatus;
+    });
+
+    this.kanban = {
+      ABERTA: filteredOrders.filter((o) => o.status === ServiceOrderStatus.ABERTA),
+      EM_ANALISE: filteredOrders.filter((o) => o.status === ServiceOrderStatus.EM_ANALISE),
+      AGUARDANDO_CLIENTE: filteredOrders.filter(
+        (o) => o.status === ServiceOrderStatus.AGUARDANDO_CLIENTE,
+      ),
+      FINALIZADA: filteredOrders.filter((o) => o.status === ServiceOrderStatus.FINALIZADA),
+      CANCELADA: filteredOrders.filter((o) => o.status === ServiceOrderStatus.CANCELADA),
+    };
+
+    this.cdr.markForCheck();
   }
 
-  getColumnColor(status: ServiceOrderStatus): string {
-    return this.columns.find((c) => c.status === status)?.color ?? '#6b7280';
+  clearFilters(): void {
+    this.customerFilter = '';
+    this.statusFilter = '';
+    this.applyFilters();
   }
 
-  getColumnLabel(status: ServiceOrderStatus): string {
-    return this.columns.find((c) => c.status === status)?.label ?? status;
-  }
-
-  onToggleView(): void {
-    this.store.dispatch(KanbanActions.toggleViewMode());
-  }
-
-  onDrop(event: CdkDragDrop<ServiceOrderStatus>): void {
+  drop(event: CdkDragDrop<ServiceOrder[]>, newStatus: ServiceOrderStatus): void {
     const order = event.item.data as ServiceOrder;
-    const newStatus = event.container.data;
-    const oldIndex = STATUS_ORDER.indexOf(order.status);
-    const newIndex = STATUS_ORDER.indexOf(newStatus);
 
-    if (newIndex <= oldIndex && newStatus !== order.status) {
-      return; // Forward-only: cannot go back
+    if (!order || order.status === newStatus) {
+      return;
     }
 
-    if (newStatus !== order.status) {
-      this.store.dispatch(
-        KanbanActions.moveCard({ orderId: order.id, newStatus }),
-      );
+    this.serviceOrderService.updateStatus(order.id, newStatus).subscribe({
+      next: () => this.loadKanban(),
+      error: (err) => console.error('Erro ao mover card', err),
+    });
+  }
+
+  getOrders(status: ServiceOrderStatus): ServiceOrder[] {
+    return this.kanban[status] ?? [];
+  }
+
+  goToCreate(): void {
+    this.router.navigate(['/kanban/create']);
+  }
+
+  goToDetail(id: number): void {
+    this.router.navigate(['/kanban', id]);
+  }
+
+  moveNext(order: ServiceOrder, event: Event): void {
+    event.stopPropagation();
+
+    const nextStatus = this.getNextStatus(order.status);
+
+    if (!nextStatus) {
+      return;
+    }
+
+    this.serviceOrderService.updateStatus(order.id, nextStatus).subscribe({
+      next: () => this.loadKanban(),
+      error: (err) => console.error('Erro ao avançar status', err),
+    });
+  }
+
+  movePrevious(order: ServiceOrder, event: Event): void {
+    event.stopPropagation();
+
+    const previousStatus = this.getPreviousStatus(order.status);
+
+    if (!previousStatus) {
+      return;
+    }
+
+    this.serviceOrderService.updateStatus(order.id, previousStatus).subscribe({
+      next: () => this.loadKanban(),
+      error: (err) => console.error('Erro ao voltar status', err),
+    });
+  }
+
+  getNextStatus(status: ServiceOrderStatus): ServiceOrderStatus | null {
+    switch (status) {
+      case ServiceOrderStatus.ABERTA:
+        return ServiceOrderStatus.EM_ANALISE;
+      case ServiceOrderStatus.EM_ANALISE:
+        return ServiceOrderStatus.AGUARDANDO_CLIENTE;
+      case ServiceOrderStatus.AGUARDANDO_CLIENTE:
+        return ServiceOrderStatus.FINALIZADA;
+      default:
+        return null;
+    }
+  }
+
+  getPreviousStatus(status: ServiceOrderStatus): ServiceOrderStatus | null {
+    switch (status) {
+      case ServiceOrderStatus.EM_ANALISE:
+        return ServiceOrderStatus.ABERTA;
+      case ServiceOrderStatus.AGUARDANDO_CLIENTE:
+        return ServiceOrderStatus.EM_ANALISE;
+      case ServiceOrderStatus.FINALIZADA:
+        return ServiceOrderStatus.AGUARDANDO_CLIENTE;
+      default:
+        return null;
     }
   }
 }

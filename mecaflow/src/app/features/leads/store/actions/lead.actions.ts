@@ -8,7 +8,7 @@ export const LeadActions = createActionGroup({
     'Load Leads Success': props<{ response: PaginatedResponse<Lead> }>(),
     'Load Leads Failure': props<{ error: string }>(),
 
-    'Load Lead Detail': props<{ id: string }>(),
+    'Load Lead Detail': props<{ id: number }>(),
     'Load Lead Detail Success': props<{ lead: Lead }>(),
     'Load Lead Detail Failure': props<{ error: string }>(),
 

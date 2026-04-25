@@ -1,6 +1,6 @@
 import { createEntityAdapter, EntityState } from '@ngrx/entity';
 import { createReducer, on } from '@ngrx/store';
-import { Lead, LeadFilters, LeadImportResult } from '../../models/lead.model';
+import { Lead, LeadFilters } from '../../models/lead.model';
 import { LeadActions } from '../actions/lead.actions';
 
 export interface LeadState extends EntityState<Lead> {
@@ -12,7 +12,6 @@ export interface LeadState extends EntityState<Lead> {
   totalPages: number;
   page: number;
   pageSize: number;
-  importResult: LeadImportResult | null;
 }
 
 export const leadAdapter = createEntityAdapter<Lead>({
@@ -35,7 +34,6 @@ export const initialState: LeadState = leadAdapter.getInitialState({
   totalPages: 0,
   page: 0,
   pageSize: 10,
-  importResult: null,
 });
 
 export const leadReducer = createReducer(
@@ -148,25 +146,6 @@ export const leadReducer = createReducer(
   ),
 
   on(LeadActions.deleteLeadFailure, (state, { error }) => ({
-    ...state,
-    loading: false,
-    error,
-  })),
-
-  on(LeadActions.importLeads, (state) => ({
-    ...state,
-    loading: true,
-    error: null,
-  })),
-
-  on(LeadActions.importLeadsSuccess, (state, { result }) => ({
-    ...state,
-    loading: false,
-    error: null,
-    importResult: result,
-  })),
-
-  on(LeadActions.importLeadsFailure, (state, { error }) => ({
     ...state,
     loading: false,
     error,

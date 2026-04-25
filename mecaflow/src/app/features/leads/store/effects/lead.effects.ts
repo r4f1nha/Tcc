@@ -42,7 +42,7 @@ export class LeadEffects {
     this.actions$.pipe(
       ofType(LeadActions.loadLeadDetail),
       switchMap(({ id }) =>
-        this.leadService.getById(Number(id)).pipe(
+        this.leadService.getById(id).pipe(
           map((lead) => LeadActions.loadLeadDetailSuccess({ lead })),
           catchError((error) =>
             of(
@@ -66,6 +66,42 @@ export class LeadEffects {
             of(
               LeadActions.createLeadFailure({
                 error: error?.message ?? 'Erro ao criar lead',
+              }),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+
+  readonly updateLead$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(LeadActions.updateLead),
+      switchMap(({ id, payload }) =>
+        this.leadService.update(id, payload).pipe(
+          map((lead) => LeadActions.updateLeadSuccess({ lead })),
+          catchError((error) =>
+            of(
+              LeadActions.updateLeadFailure({
+                error: error?.message ?? 'Erro ao atualizar lead',
+              }),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+
+  readonly deleteLead$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(LeadActions.deleteLead),
+      switchMap(({ id }) =>
+        this.leadService.delete(id).pipe(
+          map(() => LeadActions.deleteLeadSuccess({ id })),
+          catchError((error) =>
+            of(
+              LeadActions.deleteLeadFailure({
+                error: error?.message ?? 'Erro ao excluir lead',
               }),
             ),
           ),
