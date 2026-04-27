@@ -70,6 +70,8 @@ public class AppointmentService {
                 request.endAt(),
                 request.startAt()
         )) {
+
+
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
                     "Já existe um agendamento nesse horário."
