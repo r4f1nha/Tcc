@@ -12,25 +12,21 @@ export enum CalendarView {
 }
 
 export interface Appointment {
-  readonly id: string;
-  readonly leadId: string;
-  readonly leadName: string;
-  readonly agentId: string | null;
-  readonly tenantId: string;
+  readonly id: number;
   readonly title: string;
   readonly description: string;
   readonly serviceType: string;
-  readonly startTime: string;
-  readonly endTime: string;
-  readonly status: AppointmentStatus;
-  readonly createdAt: string;
-  readonly updatedAt: string;
+  readonly startAt: string;
+  readonly endAt: string;
+  readonly status?: AppointmentStatus;
+  readonly createdAt?: string;
+  readonly updatedAt?: string;
 }
 
 export interface AppointmentFilters {
   readonly date: string;
   readonly status: AppointmentStatus | null;
-  readonly agentId: string | null;
+  readonly agentId: number | null;
 }
 
 export interface TimeSlot {
@@ -40,18 +36,26 @@ export interface TimeSlot {
 }
 
 export interface BlockedSlot {
-  readonly id: string;
+  readonly id: number;
   readonly dayOfWeek: number;
-  readonly startTime: string;
-  readonly endTime: string;
+  readonly startAt: string;
+  readonly endAt: string;
   readonly reason: string;
 }
 
 export interface CreateAppointmentPayload {
-  readonly leadId: string;
   readonly title: string;
   readonly description: string;
   readonly serviceType: string;
-  readonly startTime: string;
-  readonly endTime: string;
+  readonly startAt: string;
+  readonly endAt: string;
+}
+
+export interface UpdateAppointmentPayload {
+  readonly title?: string;
+  readonly description?: string;
+  readonly serviceType?: string;
+  readonly startAt?: string;
+  readonly endAt?: string;
+  readonly status?: AppointmentStatus;
 }

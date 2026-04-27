@@ -4,7 +4,6 @@ import { Store } from '@ngrx/store';
 import { LeadActions } from '../../store/actions/lead.actions';
 import {
   selectAllLeads,
-  selectLeadFilters,
   selectLeadLoading,
   selectLeadPagination,
 } from '../../store/selectors/lead.selectors';
@@ -74,6 +73,8 @@ import { LeadTableComponent } from '../../components/lead-table/lead-table.compo
           [leads]="leads()"
           [loading]="loading()"
           (leadSelected)="onLeadSelected($event)"
+          (editClicked)="onEditLead($event)"
+          (deleteClicked)="onDeleteLead($event)"
         />
       </div>
 
@@ -104,11 +105,19 @@ export class LeadListPageComponent implements OnInit {
 
   readonly leads = this.store.selectSignal(selectAllLeads);
   readonly loading = this.store.selectSignal(selectLeadLoading);
-  readonly filters = this.store.selectSignal(selectLeadFilters);
   readonly pagination = this.store.selectSignal(selectLeadPagination);
 
   ngOnInit(): void {
-    this.store.dispatch(LeadActions.loadLeads({ filters: this.filters() }));
+    this.store.dispatch(
+      LeadActions.loadLeads({
+        filters: {
+          search: '',
+          status: '',
+          page: 0,
+          pageSize: 10,
+        },
+      }),
+    );
   }
 
   onLeadSelected(id: number): void {
@@ -116,6 +125,30 @@ export class LeadListPageComponent implements OnInit {
   }
 
   onCreateLead(): void {
-  this.router.navigate(['/leads', 'create']);
+    this.router.navigate(['/leads', 'create']);
+  }
+
+  onEditLead(id: number): void {
+    this.router.navigate(['/leads', 'edit', id]);
+  }
+
+  onDeleteLead(id: number): void {
+  const confirmed = window.confirm('Tem certeza que deseja excluir este lead?');
+  if (!confirmed) return;
+
+  this.store.dispatch(LeadActions.deleteLead({ id }));
+
+  setTimeout(() => {
+    this.store.dispatch(
+      LeadActions.loadLeads({
+        filters: {
+          search: '',
+          status: '',
+          page: 0,
+          pageSize: 10,
+        },
+      }),
+    );
+  }, 300);
 }
 }

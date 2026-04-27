@@ -49,8 +49,3 @@ export const selectLeadPagination = createSelector(
     totalPages: state.totalPages,
   }),
 );
-
-export const selectLeadImportResult = createSelector(
-  selectLeadState,
-  (state) => state.importResult,
-);

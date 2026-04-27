@@ -13,6 +13,10 @@ export const LEADS_ROUTES: Routes = [
     component: LeadCreatePageComponent,
   },
   {
+    path: 'edit/:id',
+    component: LeadCreatePageComponent,
+  },
+  {
     path: ':id',
     component: LeadDetailPageComponent,
   },

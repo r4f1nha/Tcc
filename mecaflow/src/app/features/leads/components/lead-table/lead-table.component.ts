@@ -19,44 +19,78 @@ import { SkeletonComponent } from '../../../../shared/components/skeleton/skelet
             <th>Empresa</th>
             <th>Prioridade</th>
             <th>Criado em</th>
+            <th style="width: 170px;">Ações</th>
           </tr>
         </thead>
         <tbody>
           @if (loading()) {
             @for (i of [1,2,3,4,5]; track i) {
               <tr>
-                <td colspan="6">
+                <td colspan="7">
                   <app-skeleton variant="text" />
                 </td>
               </tr>
             }
           } @else {
             @for (lead of leads(); track lead.id) {
-              <tr (click)="leadSelected.emit(lead.id)" style="cursor:pointer;">
-                <td>
+              <tr>
+                <td (click)="leadSelected.emit(lead.id)" style="cursor:pointer;">
                   <div class="d-flex align-items-center">
-                    <div class="rounded-circle d-flex align-items-center justify-content-center mr-2 font-weight-600"
-                      style="width:32px;height:32px;background:rgba(79,110,247,0.15);color:#4F6EF7;font-size:0.75rem;flex-shrink:0;">
+                    <div
+                      class="rounded-circle d-flex align-items-center justify-content-center mr-2 font-weight-600"
+                      style="width:32px;height:32px;background:rgba(79,110,247,0.15);color:#4F6EF7;font-size:0.75rem;flex-shrink:0;"
+                    >
                       {{ lead.name.charAt(0).toUpperCase() }}
                     </div>
                     <span class="font-weight-600">{{ lead.name }}</span>
                   </div>
                 </td>
-                <td class="text-muted" style="font-size:0.8rem;">{{ lead.phone || '—' }}</td>
-                <td>
+
+                <td class="text-muted" style="font-size:0.8rem;" (click)="leadSelected.emit(lead.id)">
+                  {{ lead.phone || '—' }}
+                </td>
+
+                <td (click)="leadSelected.emit(lead.id)">
                   <span class="badge badge-pill" [class]="getStatusClass(lead.status)">
                     {{ getStatusLabel(lead.status) }}
                   </span>
                 </td>
-                <td class="text-muted">{{ lead.company || '—' }}</td>
-                <td class="text-muted">{{ lead.priority || '—' }}</td>
-                <td class="text-muted" style="font-size:0.8rem;">
+
+                <td class="text-muted" (click)="leadSelected.emit(lead.id)">
+                  {{ lead.company || '—' }}
+                </td>
+
+                <td class="text-muted" (click)="leadSelected.emit(lead.id)">
+                  {{ lead.priority || '—' }}
+                </td>
+
+                <td class="text-muted" style="font-size:0.8rem;" (click)="leadSelected.emit(lead.id)">
                   {{ lead.createdAt ? (lead.createdAt | date:'dd/MM/yyyy') : '—' }}
+                </td>
+
+                <td>
+                  <div class="d-flex align-items-center" style="gap: 8px;">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary"
+                      (click)="editClicked.emit(lead.id); $event.stopPropagation()"
+                    >
+                      Editar
+                    </button>
+
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-danger"
+                      (click)="deleteClicked.emit(lead.id); $event.stopPropagation()"
+                    >
+                      Excluir
+                    </button>
+                  </div>
                 </td>
               </tr>
             } @empty {
               <tr>
-                <td colspan="6" class="text-center text-muted py-4">
+                <td colspan="7" class="text-center text-muted py-4">
                   Nenhum lead encontrado
                 </td>
               </tr>
@@ -70,7 +104,10 @@ import { SkeletonComponent } from '../../../../shared/components/skeleton/skelet
 export class LeadTableComponent {
   readonly leads = input.required<ReadonlyArray<Lead>>();
   readonly loading = input(false);
+
   readonly leadSelected = output<number>();
+  readonly editClicked = output<number>();
+  readonly deleteClicked = output<number>();
 
   getStatusClass(status: LeadStatus): string {
     const classes: Record<LeadStatus, string> = {

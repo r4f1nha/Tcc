@@ -1,13 +1,20 @@
 import { Routes } from '@angular/router';
-import { authGuard } from '../../core/auth/guards/auth.guard';
+
+import { KanbanPageComponent } from './containers/kanban-page/kanban-page.component';
+import { ServiceOrderCreatePageComponent } from './containers/service-order-create-page/service-order-create-page.component';
+import { ServiceOrderDetailPageComponent } from './containers/service-order-detail-page/service-order-detail-page.component';
 
 export const KANBAN_ROUTES: Routes = [
   {
     path: '',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./containers/kanban-page/kanban-page.component').then(
-        (m) => m.KanbanPageComponent,
-      ),
+    component: KanbanPageComponent,
+  },
+  {
+    path: 'create',
+    component: ServiceOrderCreatePageComponent,
+  },
+  {
+    path: ':id',
+    component: ServiceOrderDetailPageComponent,
   },
 ];
