@@ -6,9 +6,10 @@ import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 
 public record AppointmentRequest(
-        @NotNull Long leadId,
         @NotBlank String title,
         String description,
+        String serviceType,
         @NotNull OffsetDateTime startAt,
         @NotNull OffsetDateTime endAt
-) {}
+) {
+}

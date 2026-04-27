@@ -1,13 +1,13 @@
 package com.moduloAi.TCC.service;
 
 import com.moduloAi.TCC.domain.Appointment;
-import com.moduloAi.TCC.domain.Lead;
 import com.moduloAi.TCC.dto.AppointmentRequest;
 import com.moduloAi.TCC.dto.AppointmentResponse;
 import com.moduloAi.TCC.repository.AppointmentRepository;
-import com.moduloAi.TCC.repository.LeadRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -15,16 +15,14 @@ import java.util.List;
 public class AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
-    private final LeadRepository leadRepository;
 
-    public AppointmentService(AppointmentRepository appointmentRepository,
-                              LeadRepository leadRepository) {
+    public AppointmentService(AppointmentRepository appointmentRepository) {
         this.appointmentRepository = appointmentRepository;
-        this.leadRepository = leadRepository;
     }
 
     public List<AppointmentResponse> list() {
-        return appointmentRepository.findAll().stream()
+        return appointmentRepository.findAll()
+                .stream()
                 .map(this::toResponse)
                 .toList();
     }
@@ -36,11 +34,24 @@ public class AppointmentService {
     }
 
     public AppointmentResponse create(AppointmentRequest request) {
-        Lead lead = leadRepository.findById(request.leadId())
-                .orElseThrow(() -> new EntityNotFoundException("Lead not found: " + request.leadId()));
+        Appointment appointment = new Appointment(
+                request.title(),
+                request.description(),
+                request.serviceType(),
+                request.startAt(),
+                request.endAt()
+        );
 
-        Appointment appointment = new Appointment(lead, request.title(),
-                request.description(), request.startAt(), request.endAt());
+        if (appointmentRepository.existsByStartAtLessThanAndEndAtGreaterThan(
+                request.endAt(),
+                request.startAt()
+        )) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Já existe um agendamento nesse horário."
+            );
+        }
+
         return toResponse(appointmentRepository.save(appointment));
     }
 
@@ -48,14 +59,25 @@ public class AppointmentService {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Appointment not found: " + id));
 
-        Lead lead = leadRepository.findById(request.leadId())
-                .orElseThrow(() -> new EntityNotFoundException("Lead not found: " + request.leadId()));
-
-        appointment.setLead(lead);
         appointment.setTitle(request.title());
         appointment.setDescription(request.description());
+        appointment.setServiceType(request.serviceType());
         appointment.setStartAt(request.startAt());
         appointment.setEndAt(request.endAt());
+
+        if (appointmentRepository.existsByIdNotAndStartAtLessThanAndEndAtGreaterThan(
+                id,
+                request.endAt(),
+                request.startAt()
+        )) {
+
+
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Já existe um agendamento nesse horário."
+            );
+        }
+
         return toResponse(appointmentRepository.save(appointment));
     }
 
@@ -63,16 +85,16 @@ public class AppointmentService {
         if (!appointmentRepository.existsById(id)) {
             throw new EntityNotFoundException("Appointment not found: " + id);
         }
+
         appointmentRepository.deleteById(id);
     }
 
     private AppointmentResponse toResponse(Appointment appointment) {
         return new AppointmentResponse(
                 appointment.getId(),
-                appointment.getLead().getId(),
-                appointment.getLead().getName(),
                 appointment.getTitle(),
                 appointment.getDescription(),
+                appointment.getServiceType(),
                 appointment.getStartAt(),
                 appointment.getEndAt()
         );
