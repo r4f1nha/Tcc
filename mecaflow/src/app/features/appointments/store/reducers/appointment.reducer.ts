@@ -1,6 +1,12 @@
 import { createReducer, on } from '@ngrx/store';
 import { EntityAdapter, EntityState, createEntityAdapter } from '@ngrx/entity';
-import { Appointment, AppointmentStatus, CalendarView } from '../../models/appointment.model';
+
+import {
+  Appointment,
+  AppointmentStatus,
+  CalendarView,
+} from '../../models/appointment.model';
+
 import { AppointmentActions } from '../actions/appointment.actions';
 
 export interface AppointmentState extends EntityState<Appointment> {
@@ -13,9 +19,8 @@ export interface AppointmentState extends EntityState<Appointment> {
 
 export const appointmentAdapter: EntityAdapter<Appointment> =
   createEntityAdapter<Appointment>({
-    selectId: (a) => a.id,
     sortComparer: (a, b) =>
-      new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
+      new Date(a.startAt).getTime() - new Date(b.startAt).getTime(),
   });
 
 const initialState: AppointmentState = appointmentAdapter.getInitialState({
@@ -26,6 +31,18 @@ const initialState: AppointmentState = appointmentAdapter.getInitialState({
   pendingCount: 0,
 });
 
+function getAppointmentsFromState(state: AppointmentState): Appointment[] {
+  return Object.values(state.entities).filter(
+    (appointment): appointment is Appointment => !!appointment
+  );
+}
+
+function countPending(appointments: ReadonlyArray<Appointment>): number {
+  return appointments.filter(
+    (appointment) => appointment.status === AppointmentStatus.PENDING
+  ).length;
+}
+
 export const appointmentReducer = createReducer(
   initialState,
 
@@ -34,32 +51,124 @@ export const appointmentReducer = createReducer(
     loading: true,
     error: null,
   })),
+
   on(AppointmentActions.loadAppointmentsSuccess, (state, { appointments }) =>
     appointmentAdapter.setAll([...appointments], {
       ...state,
       loading: false,
-      pendingCount: appointments.filter((a) => a.status === AppointmentStatus.PENDING).length,
-    }),
+      error: null,
+      pendingCount: countPending(appointments),
+    })
   ),
+
   on(AppointmentActions.loadAppointmentsFailure, (state, { error }) => ({
     ...state,
     loading: false,
     error,
   })),
 
-  on(AppointmentActions.createAppointmentSuccess, (state, { appointment }) =>
-    appointmentAdapter.addOne(appointment, state),
-  ),
+  on(AppointmentActions.createAppointment, (state) => ({
+    ...state,
+    loading: true,
+    error: null,
+  })),
 
-  on(
-    AppointmentActions.confirmAppointmentSuccess,
-    AppointmentActions.cancelAppointmentSuccess,
-    (state, { appointment }) =>
-      appointmentAdapter.upsertOne(appointment, {
-        ...state,
-        pendingCount: Math.max(0, state.pendingCount - 1),
-      }),
-  ),
+  on(AppointmentActions.createAppointmentSuccess, (state, { appointment }) => {
+    const nextState = appointmentAdapter.addOne(appointment, {
+      ...state,
+      loading: false,
+      error: null,
+    });
+
+    return {
+      ...nextState,
+      pendingCount: countPending(getAppointmentsFromState(nextState)),
+    };
+  }),
+
+  on(AppointmentActions.createAppointmentFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error,
+  })),
+
+  on(AppointmentActions.updateAppointment, (state) => ({
+    ...state,
+    loading: true,
+    error: null,
+  })),
+
+  on(AppointmentActions.updateAppointmentSuccess, (state, { appointment }) => {
+    const nextState = appointmentAdapter.upsertOne(appointment, {
+      ...state,
+      loading: false,
+      error: null,
+    });
+
+    return {
+      ...nextState,
+      pendingCount: countPending(getAppointmentsFromState(nextState)),
+    };
+  }),
+
+  on(AppointmentActions.updateAppointmentFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error,
+  })),
+
+  on(AppointmentActions.deleteAppointment, (state) => ({
+    ...state,
+    loading: true,
+    error: null,
+  })),
+
+  on(AppointmentActions.deleteAppointmentSuccess, (state, { id }) => {
+    const nextState = appointmentAdapter.removeOne(id, {
+      ...state,
+      loading: false,
+      error: null,
+    });
+
+    return {
+      ...nextState,
+      pendingCount: countPending(getAppointmentsFromState(nextState)),
+    };
+  }),
+
+  on(AppointmentActions.deleteAppointmentFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error,
+  })),
+
+  on(AppointmentActions.confirmAppointmentSuccess, (state, { appointment }) => {
+    const nextState = appointmentAdapter.upsertOne(appointment, state);
+
+    return {
+      ...nextState,
+      pendingCount: countPending(getAppointmentsFromState(nextState)),
+    };
+  }),
+
+  on(AppointmentActions.confirmAppointmentFailure, (state, { error }) => ({
+    ...state,
+    error,
+  })),
+
+  on(AppointmentActions.cancelAppointmentSuccess, (state, { appointment }) => {
+    const nextState = appointmentAdapter.upsertOne(appointment, state);
+
+    return {
+      ...nextState,
+      pendingCount: countPending(getAppointmentsFromState(nextState)),
+    };
+  }),
+
+  on(AppointmentActions.cancelAppointmentFailure, (state, { error }) => ({
+    ...state,
+    error,
+  })),
 
   on(AppointmentActions.changeView, (state, { view }) => ({
     ...state,
@@ -69,5 +178,5 @@ export const appointmentReducer = createReducer(
   on(AppointmentActions.selectDate, (state, { date }) => ({
     ...state,
     selectedDate: date,
-  })),
+  }))
 );
