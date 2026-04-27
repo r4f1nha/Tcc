@@ -4,10 +4,10 @@ import java.time.OffsetDateTime;
 
 public record AppointmentResponse(
         Long id,
-        Long leadId,
-        String leadName,
         String title,
         String description,
+        String serviceType,
         OffsetDateTime startAt,
         OffsetDateTime endAt
-) {}
+) {
+}

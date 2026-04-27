@@ -18,27 +18,31 @@ public class Appointment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "cliente_id", nullable = false)
-    private Lead lead;
-
     @Column(name = "titulo", nullable = false)
     private String title;
 
     @Column(name = "descricao")
     private String description;
 
-    @Column(name = "start_at")
+    @Column(name = "tipo_servico")
+    private String serviceType;
+
+    @Column(name = "start_at", nullable = false)
     private OffsetDateTime startAt;
 
-    @Column(name = "end_at")
+    @Column(name = "end_at", nullable = false)
     private OffsetDateTime endAt;
 
-    public Appointment(Lead lead, String title, String description,
-                       OffsetDateTime startAt, OffsetDateTime endAt) {
-        this.lead = lead;
+    public Appointment(
+            String title,
+            String description,
+            String serviceType,
+            OffsetDateTime startAt,
+            OffsetDateTime endAt
+    ) {
         this.title = title;
         this.description = description;
+        this.serviceType = serviceType;
         this.startAt = startAt;
         this.endAt = endAt;
     }
