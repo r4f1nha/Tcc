@@ -59,7 +59,8 @@ public class SecurityConfig {
 
         config.setAllowedOrigins(List.of(
                 "http://localhost:4200",
-                "http://localhost:5173"
+                "http://localhost:5173",
+                "https://portfloio-meca-flow.e4xqua.easypanel.host"
         ));
 
         config.setAllowedMethods(List.of(
