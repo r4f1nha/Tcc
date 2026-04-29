@@ -2,6 +2,7 @@ package com.moduloAi.TCC.service;
 
 import com.moduloAi.TCC.dto.ConversationResponse;
 import com.moduloAi.TCC.dto.MessageResponse;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -35,7 +36,7 @@ public class SseService {
         List<SseEmitter> dead = new ArrayList<>();
         for (SseEmitter emitter : emitters) {
             try {
-                emitter.send(SseEmitter.event().name(eventName).data(data));
+                emitter.send(SseEmitter.event().name(eventName).data(data, MediaType.APPLICATION_JSON));
             } catch (Exception e) {
                 dead.add(emitter);
             }
