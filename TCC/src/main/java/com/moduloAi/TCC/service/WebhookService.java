@@ -32,10 +32,12 @@ public class WebhookService {
         Map<String, Object> wahaPayload = (Map<String, Object>) payload.get("payload");
         if (wahaPayload == null) return;
 
-        // Ignorar mensagens enviadas pelo próprio número
-        if (Boolean.TRUE.equals(wahaPayload.get("fromMe"))) return;
+        boolean fromMe = Boolean.TRUE.equals(wahaPayload.get("fromMe"));
 
         String wahaChatId = (String) wahaPayload.get("from");
+        // Mensagens enviadas pelo bot têm "to" como destinatário (o lead)
+        if (fromMe) wahaChatId = (String) wahaPayload.get("to");
+
         String messageBody = (String) wahaPayload.get("body");
         boolean hasMedia = Boolean.TRUE.equals(wahaPayload.get("hasMedia"));
 
@@ -50,10 +52,11 @@ public class WebhookService {
             }
         }
 
-        String leadPhone = wahaChatId != null ? wahaChatId.replace("@s.whatsapp.net", "") : null;
+        if (wahaChatId == null) return;
+        String leadPhone = wahaChatId.replace("@s.whatsapp.net", "").replace("@c.us", "");
 
         Conversation conversation = conversationService.findOrCreateConversation(
-                wahaChatId, leadName, leadPhone, session);
+                fromMe ? wahaChatId : wahaChatId, leadName, leadPhone, session);
 
         Message.MessageType type = Message.MessageType.TEXT;
         String mediaUrl = null;
@@ -75,8 +78,10 @@ public class WebhookService {
             }
         }
 
+        // fromMe=false → mensagem do lead; fromMe=true → resposta do bot
+        String senderName = fromMe ? "Bot" : leadName;
         Message message = conversationService.saveMessage(
-                conversation, messageBody, type, leadName, true, mediaUrl, null);
+                conversation, messageBody, type, senderName, !fromMe, mediaUrl, null);
 
         MessageResponse messageResponse = new MessageResponse(
                 message.getId(), conversation.getId(), message.getContent(),
@@ -86,6 +91,9 @@ public class WebhookService {
         sseService.pushMessage(messageResponse);
         sseService.pushConversationUpdate(conversationService.toConversationResponse(conversation));
 
-        automationService.processMessageReceived(conversation, message);
+        // Só processa automação para mensagens recebidas (não para respostas do bot)
+        if (!fromMe) {
+            automationService.processMessageReceived(conversation, message);
+        }
     }
 }
