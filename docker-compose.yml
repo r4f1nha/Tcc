@@ -1,0 +1,26 @@
+services:
+  backend:
+    build:
+      context: ./TCC
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      WAHA_BASE_URL: ${WAHA_BASE_URL}
+      WAHA_API_KEY: ${WAHA_API_KEY}
+      WAHA_SESSION: ${WAHA_SESSION}
+      REDIS_URL: ${REDIS_URL}
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./mecaflow
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    restart: unless-stopped
