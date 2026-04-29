@@ -5,13 +5,6 @@ services:
       dockerfile: Dockerfile
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      WAHA_BASE_URL: ${WAHA_BASE_URL}
-      WAHA_API_KEY: ${WAHA_API_KEY}
-      WAHA_SESSION: ${WAHA_SESSION}
-      REDIS_URL: ${REDIS_URL}
     restart: unless-stopped
 
   frontend:
