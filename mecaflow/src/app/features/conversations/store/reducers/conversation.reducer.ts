@@ -30,7 +30,7 @@ export const conversationAdapter: EntityAdapter<Conversation> =
   });
 
 const initialFilters: ConversationFilters = {
-  tab: ConversationTab.HUMAN,
+  tab: ConversationTab.UNASSIGNED,
   search: '',
   labelId: null,
   agentId: null,

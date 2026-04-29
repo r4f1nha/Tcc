@@ -1,17 +1,20 @@
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { of } from 'rxjs';
+import { EMPTY, of } from 'rxjs';
 import { catchError, map, switchMap, withLatestFrom } from 'rxjs/operators';
 import { ConversationService } from '../../services/conversation.service';
+import { SseService } from '../../services/sse.service';
 import { ConversationActions } from '../actions/conversation.actions';
 import { selectConversationFilters } from '../selectors/conversation.selectors';
+import { Conversation, Message } from '../../models/conversation.model';
 
 @Injectable()
 export class ConversationEffects {
   private readonly actions$ = inject(Actions);
   private readonly store = inject(Store);
   private readonly conversationService = inject(ConversationService);
+  private readonly sseService = inject(SseService);
 
   readonly loadConversations$ = createEffect(() =>
     this.actions$.pipe(
@@ -97,6 +100,23 @@ export class ConversationEffects {
           map((conversation) =>
             ConversationActions.transferSuccess({ conversation }),
           ),
+        ),
+      ),
+    ),
+  );
+
+  readonly connectSse$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ConversationActions.connectSSE),
+      switchMap(() =>
+        this.sseService.connect().pipe(
+          map((event) => {
+            if (event.type === 'message') {
+              return ConversationActions.messageReceived({ message: event.data as Message });
+            }
+            return ConversationActions.conversationUpdated({ conversation: event.data as Conversation });
+          }),
+          catchError(() => EMPTY),
         ),
       ),
     ),

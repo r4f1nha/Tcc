@@ -13,8 +13,9 @@ export enum MessageType {
 }
 
 export enum ConversationTab {
-  BOT = 'BOT',
-  HUMAN = 'HUMAN',
+  MINE = 'MINE',
+  UNASSIGNED = 'UNASSIGNED',
+  ALL = 'ALL',
   RESOLVED = 'RESOLVED',
 }
 

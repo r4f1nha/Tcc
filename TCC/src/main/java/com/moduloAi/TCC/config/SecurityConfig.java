@@ -43,7 +43,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/auth/**", "/webhooks/**", "/error").permitAll()
+                        .requestMatchers("/auth/**", "/webhooks/**", "/sse/**", "/error").permitAll()
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .requestMatchers("/leads/**").permitAll()
                         .requestMatchers("/service-orders/**").permitAll()

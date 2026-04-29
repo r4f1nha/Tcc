@@ -6,6 +6,7 @@ import com.moduloAi.TCC.domain.Message;
 import com.moduloAi.TCC.dto.AssignRequest;
 import com.moduloAi.TCC.dto.ConversationResponse;
 import com.moduloAi.TCC.dto.LabelResponse;
+import com.moduloAi.TCC.dto.MessagePageResponse;
 import com.moduloAi.TCC.dto.MessageResponse;
 import com.moduloAi.TCC.repository.ConversationRepository;
 import com.moduloAi.TCC.repository.LabelRepository;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -72,10 +74,23 @@ public class ConversationService {
     }
 
     @Transactional(readOnly = true)
-    public List<ConversationResponse> getAll(Conversation.ConversationStatus status) {
-        List<Conversation> list = status != null
-                ? conversationRepository.findByStatusOrderByLastMessageAtDesc(status)
-                : conversationRepository.findAllByOrderByLastMessageAtDesc();
+    public List<ConversationResponse> getAll(String tab) {
+        List<Conversation> list;
+        if (tab == null || tab.equalsIgnoreCase("ALL")) {
+            list = conversationRepository.findByStatusNotOrderByLastMessageAtDesc(
+                    Conversation.ConversationStatus.RESOLVED);
+        } else if (tab.equalsIgnoreCase("MINE")) {
+            list = conversationRepository.findByStatusOrderByLastMessageAtDesc(
+                    Conversation.ConversationStatus.HUMAN);
+        } else if (tab.equalsIgnoreCase("UNASSIGNED")) {
+            list = conversationRepository.findByStatusInOrderByLastMessageAtDesc(
+                    List.of(Conversation.ConversationStatus.UNASSIGNED, Conversation.ConversationStatus.BOT));
+        } else if (tab.equalsIgnoreCase("RESOLVED")) {
+            list = conversationRepository.findByStatusOrderByLastMessageAtDesc(
+                    Conversation.ConversationStatus.RESOLVED);
+        } else {
+            list = conversationRepository.findAllByOrderByLastMessageAtDesc();
+        }
         return list.stream().map(this::toResponse).toList();
     }
 
@@ -85,15 +100,23 @@ public class ConversationService {
     }
 
     @Transactional(readOnly = true)
-    public Page<MessageResponse> getMessages(Long conversationId, int page, int size) {
-        return messageRepository.findByConversationIdOrderByCreatedAtAsc(
-                conversationId, PageRequest.of(page, size)).map(this::toMessageResponse);
+    public MessagePageResponse getMessages(Long conversationId, int page, int size) {
+        Page<Message> messagePage = messageRepository.findByConversationIdOrderByCreatedAtAsc(
+                conversationId, PageRequest.of(page, size));
+        List<MessageResponse> data = messagePage.getContent().stream()
+                .map(this::toMessageResponse).toList();
+        return new MessagePageResponse(data, !messagePage.isLast(), messagePage.getTotalElements());
     }
 
-    public void sendMessage(Long conversationId, String content) {
+    public MessageResponse sendMessage(Long conversationId, String content) {
         Conversation conversation = findById(conversationId);
         wahaApiService.sendText(conversation.getWahaChatId(), content);
-        saveMessage(conversation, content, Message.MessageType.TEXT, "Agente", false, null, null);
+        Message saved = saveMessage(conversation, content, Message.MessageType.TEXT, "Agente", false, null, null);
+        return toMessageResponse(saved);
+    }
+
+    public ConversationResponse toConversationResponse(Conversation c) {
+        return toResponse(c);
     }
 
     public ConversationResponse resolve(Long conversationId) {

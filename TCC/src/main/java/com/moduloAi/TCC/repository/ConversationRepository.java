@@ -9,5 +9,7 @@ import java.util.Optional;
 public interface ConversationRepository extends JpaRepository<Conversation, Long> {
     Optional<Conversation> findByWahaChatId(String wahaChatId);
     List<Conversation> findByStatusOrderByLastMessageAtDesc(Conversation.ConversationStatus status);
+    List<Conversation> findByStatusNotOrderByLastMessageAtDesc(Conversation.ConversationStatus status);
+    List<Conversation> findByStatusInOrderByLastMessageAtDesc(List<Conversation.ConversationStatus> statuses);
     List<Conversation> findAllByOrderByLastMessageAtDesc();
 }

@@ -105,9 +105,8 @@ export class ConversationInboxComponent implements OnInit {
   readonly filters = this.store.selectSignal(selectConversationFilters);
 
   ngOnInit(): void {
-    this.store.dispatch(
-      ConversationActions.loadConversations({ filters: this.filters() }),
-    );
+    this.store.dispatch(ConversationActions.loadConversations({ filters: this.filters() }));
+    this.store.dispatch(ConversationActions.connectSSE());
   }
 
   onTabChanged(tab: ConversationTab): void {

@@ -1,4 +1,5 @@
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
+
 import {
   Conversation,
   ConversationFilters,
@@ -39,7 +40,10 @@ export const ConversationActions = createActionGroup({
     'Add Label': props<{ conversationId: string; labelId: string }>(),
     'Remove Label': props<{ conversationId: string; labelId: string }>(),
 
-    // WebSocket real-time events
+    // SSE real-time
+    'Connect SSE': emptyProps(),
+
+    // Real-time events
     'Message Received': props<{ message: Message }>(),
     'Typing Started': props<{ indicator: TypingIndicator }>(),
     'Typing Stopped': props<{ indicator: TypingIndicator }>(),

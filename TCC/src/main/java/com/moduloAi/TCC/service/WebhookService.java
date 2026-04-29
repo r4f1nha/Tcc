@@ -2,6 +2,7 @@ package com.moduloAi.TCC.service;
 
 import com.moduloAi.TCC.domain.Conversation;
 import com.moduloAi.TCC.domain.Message;
+import com.moduloAi.TCC.dto.MessageResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -12,13 +13,16 @@ public class WebhookService {
 
     private final ConversationService conversationService;
     private final AutomationService automationService;
+    private final SseService sseService;
     private final String session;
 
     public WebhookService(ConversationService conversationService,
                           AutomationService automationService,
+                          SseService sseService,
                           @Value("${waha.session}") String session) {
         this.conversationService = conversationService;
         this.automationService = automationService;
+        this.sseService = sseService;
         this.session = session;
     }
 
@@ -71,6 +75,14 @@ public class WebhookService {
 
         Message message = conversationService.saveMessage(
                 conversation, messageBody, type, leadName, true, mediaUrl, null);
+
+        MessageResponse messageResponse = new MessageResponse(
+                message.getId(), conversation.getId(), message.getContent(),
+                message.getType().name(), message.getSenderName(), message.isFromLead(),
+                message.getMediaUrl(), message.getCreatedAt()
+        );
+        sseService.pushMessage(messageResponse);
+        sseService.pushConversationUpdate(conversationService.toConversationResponse(conversation));
 
         automationService.processMessageReceived(conversation, message);
     }
