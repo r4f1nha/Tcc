@@ -3,6 +3,8 @@ package com.moduloAi.TCC.service;
 import com.moduloAi.TCC.domain.Conversation;
 import com.moduloAi.TCC.domain.Message;
 import com.moduloAi.TCC.dto.MessageResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +12,8 @@ import java.util.Map;
 
 @Service
 public class WebhookService {
+
+    private static final Logger log = LoggerFactory.getLogger(WebhookService.class);
 
     private final ConversationService conversationService;
     private final AutomationService automationService;
@@ -28,15 +32,21 @@ public class WebhookService {
 
     @SuppressWarnings("unchecked")
     public void process(Map<String, Object> payload) {
+        log.info("Webhook recebido event={} payload_keys={}", payload.get("event"),
+                payload.containsKey("payload") ? ((Map<?,?>)payload.get("payload")).keySet() : "null");
+
         // WAHA envia: { "event": "message", "payload": { ... } }
         Map<String, Object> wahaPayload = (Map<String, Object>) payload.get("payload");
         if (wahaPayload == null) return;
 
         boolean fromMe = Boolean.TRUE.equals(wahaPayload.get("fromMe"));
+        String from = (String) wahaPayload.get("from");
+        String to   = (String) wahaPayload.get("to");
+        log.info("fromMe={} from={} to={} body={}", fromMe, from, to, wahaPayload.get("body"));
 
-        String wahaChatId = (String) wahaPayload.get("from");
+        String wahaChatId = from;
         // Mensagens enviadas pelo bot têm "to" como destinatário (o lead)
-        if (fromMe) wahaChatId = (String) wahaPayload.get("to");
+        if (fromMe) wahaChatId = to;
 
         String messageBody = (String) wahaPayload.get("body");
         boolean hasMedia = Boolean.TRUE.equals(wahaPayload.get("hasMedia"));
