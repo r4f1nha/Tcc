@@ -35,7 +35,7 @@ import { MessageInputComponent } from '../../components/message-input/message-in
         />
 
         <!-- Messages -->
-        <div class="flex-grow-1 overflow-auto p-3">
+        <div class="flex-grow-1 p-3" style="overflow-y:auto; min-height:0;">
           @if (messagesLoading()) {
             <div class="text-center py-3">
               <div class="spinner-border spinner-border-sm text-primary" role="status">
