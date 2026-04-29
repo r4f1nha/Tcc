@@ -28,24 +28,26 @@ public class WebhookService {
 
     @SuppressWarnings("unchecked")
     public void process(Map<String, Object> payload) {
-        Map<String, Object> body = (Map<String, Object>) payload.get("body");
-        if (body == null) return;
-
-        Map<String, Object> wahaPayload = (Map<String, Object>) body.get("payload");
+        // WAHA envia: { "event": "message", "payload": { ... } }
+        Map<String, Object> wahaPayload = (Map<String, Object>) payload.get("payload");
         if (wahaPayload == null) return;
 
-        Map<String, Object> key = (Map<String, Object>) wahaPayload.get("key");
-        if (key != null && Boolean.TRUE.equals(key.get("fromMe"))) return;
+        // Ignorar mensagens enviadas pelo próprio número
+        if (Boolean.TRUE.equals(wahaPayload.get("fromMe"))) return;
 
         String wahaChatId = (String) wahaPayload.get("from");
         String messageBody = (String) wahaPayload.get("body");
         boolean hasMedia = Boolean.TRUE.equals(wahaPayload.get("hasMedia"));
 
+        // Nome do contato: tenta _data.notifyName, depois _data.Info.PushName
         String leadName = null;
         Map<String, Object> data = (Map<String, Object>) wahaPayload.get("_data");
         if (data != null) {
-            Map<String, Object> info = (Map<String, Object>) data.get("Info");
-            if (info != null) leadName = (String) info.get("PushName");
+            leadName = (String) data.get("notifyName");
+            if (leadName == null) {
+                Map<String, Object> info = (Map<String, Object>) data.get("Info");
+                if (info != null) leadName = (String) info.get("PushName");
+            }
         }
 
         String leadPhone = wahaChatId != null ? wahaChatId.replace("@s.whatsapp.net", "") : null;
