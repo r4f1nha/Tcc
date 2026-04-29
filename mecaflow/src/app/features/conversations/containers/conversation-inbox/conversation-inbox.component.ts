@@ -81,9 +81,9 @@ import { SkeletonComponent } from '../../../../shared/components/skeleton/skelet
       </div>
 
       <!-- Área do chat -->
-      <div class="flex-grow-1 d-flex flex-column">
+      <div class="flex-grow-1 d-flex flex-column" style="min-height:0; overflow:hidden;">
         @if (selectedConversationId()) {
-          <app-conversation-detail />
+          <app-conversation-detail style="flex:1; min-height:0; display:flex; flex-direction:column;" />
         } @else {
           <div class="d-flex flex-column align-items-center justify-content-center h-100 text-muted">
             <i class="fas fa-comments mb-3" style="font-size:3rem;opacity:0.2;"></i>

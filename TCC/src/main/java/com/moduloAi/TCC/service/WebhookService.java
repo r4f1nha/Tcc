@@ -54,9 +54,11 @@ public class WebhookService {
 
         if (wahaChatId == null) return;
         String leadPhone = wahaChatId.replace("@s.whatsapp.net", "").replace("@c.us", "");
+        // Normalize to @c.us for consistent DB lookup regardless of WAHA field used
+        String normalizedChatId = leadPhone + "@c.us";
 
         Conversation conversation = conversationService.findOrCreateConversation(
-                fromMe ? wahaChatId : wahaChatId, leadName, leadPhone, session);
+                normalizedChatId, leadName, leadPhone, session);
 
         Message.MessageType type = Message.MessageType.TEXT;
         String mediaUrl = null;
