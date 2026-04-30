@@ -44,9 +44,8 @@ public class WebhookService {
         String to   = (String) wahaPayload.get("to");
         log.info("fromMe={} from={} to={} body={}", fromMe, from, to, wahaPayload.get("body"));
 
+        // No WAHA GOWS, 'from' sempre contém o número do lead (em ambas as direções)
         String wahaChatId = from;
-        // Mensagens enviadas pelo bot têm "to" como destinatário (o lead)
-        if (fromMe) wahaChatId = to;
 
         String messageBody = (String) wahaPayload.get("body");
         boolean hasMedia = Boolean.TRUE.equals(wahaPayload.get("hasMedia"));
