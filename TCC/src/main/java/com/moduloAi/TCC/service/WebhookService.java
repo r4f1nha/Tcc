@@ -42,12 +42,14 @@ public class WebhookService {
         boolean fromMe = Boolean.TRUE.equals(wahaPayload.get("fromMe"));
         String from = (String) wahaPayload.get("from");
         String to   = (String) wahaPayload.get("to");
-        log.info("fromMe={} from={} to={} body={}", fromMe, from, to, wahaPayload.get("body"));
+        String wahaMessageId = (String) wahaPayload.get("id");
+        log.info("fromMe={} from={} to={} wahaMessageId={} body={}", fromMe, from, to, wahaMessageId, wahaPayload.get("body"));
 
-        // message.any dispara para tudo (entrada + saída); message dispara só para entrada.
-        // Para evitar duplicata: ignorar message.any quando é mensagem do lead (fromMe=false)
-        String event = (String) payload.get("event");
-        if ("message.any".equals(event) && !fromMe) return;
+        // Deduplicação por ID: message + message.any disparam para a mesma mensagem
+        if (wahaMessageId != null && conversationService.messageAlreadyProcessed(wahaMessageId)) {
+            log.info("Mensagem {} já processada, ignorando duplicata", wahaMessageId);
+            return;
+        }
 
         // No WAHA GOWS, 'from' sempre contém o número do lead (em ambas as direções)
         String wahaChatId = from;
@@ -97,7 +99,7 @@ public class WebhookService {
         // fromMe=false → mensagem do lead; fromMe=true → resposta do bot
         String senderName = fromMe ? "Bot" : leadName;
         Message message = conversationService.saveMessage(
-                conversation, messageBody, type, senderName, !fromMe, mediaUrl, null);
+                conversation, messageBody, type, senderName, !fromMe, mediaUrl, wahaMessageId);
 
         MessageResponse messageResponse = new MessageResponse(
                 message.getId(), conversation.getId(), message.getContent(),

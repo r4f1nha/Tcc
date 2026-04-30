@@ -115,6 +115,11 @@ public class ConversationService {
         return toMessageResponse(saved);
     }
 
+    @Transactional(readOnly = true)
+    public boolean messageAlreadyProcessed(String wahaMessageId) {
+        return messageRepository.existsByWahaMessageId(wahaMessageId);
+    }
+
     public ConversationResponse toConversationResponse(Conversation c) {
         return toResponse(c);
     }
