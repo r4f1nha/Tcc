@@ -44,6 +44,11 @@ public class WebhookService {
         String to   = (String) wahaPayload.get("to");
         log.info("fromMe={} from={} to={} body={}", fromMe, from, to, wahaPayload.get("body"));
 
+        // message.any dispara para tudo (entrada + saída); message dispara só para entrada.
+        // Para evitar duplicata: ignorar message.any quando é mensagem do lead (fromMe=false)
+        String event = (String) payload.get("event");
+        if ("message.any".equals(event) && !fromMe) return;
+
         // No WAHA GOWS, 'from' sempre contém o número do lead (em ambas as direções)
         String wahaChatId = from;
 
