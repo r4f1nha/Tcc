@@ -1,0 +1,14 @@
+services:
+  backend:
+    build:
+      context: ./TCC
+      dockerfile: Dockerfile
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./mecaflow
+      dockerfile: Dockerfile
+    restart: unless-stopped

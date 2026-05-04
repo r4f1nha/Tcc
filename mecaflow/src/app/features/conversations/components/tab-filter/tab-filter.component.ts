@@ -6,37 +6,57 @@ import { ConversationTab } from '../../models/conversation.model';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ul class="nav nav-tabs border-bottom px-3 pt-2">
+    <div class="d-flex border-bottom" style="background:#fff;">
       @for (tab of tabs; track tab.value) {
-        <li class="nav-item">
-          <button type="button" class="nav-link d-flex align-items-center gap-1"
-            [class.active]="activeTab() === tab.value"
-            (click)="tabChanged.emit(tab.value)"
-            style="border:none; background:none; font-size:0.82rem; padding:0.5rem 0.75rem;">
-            {{ tab.label }}
-            @if (tab.value === 'BOT' && counts().bot > 0) {
-              <span class="badge badge-danger badge-pill ml-1">{{ counts().bot }}</span>
-            }
-            @if (tab.value === 'HUMAN' && counts().human > 0) {
-              <span class="badge badge-primary badge-pill ml-1">{{ counts().human }}</span>
-            }
-            @if (tab.value === 'RESOLVED' && counts().resolved > 0) {
-              <span class="badge badge-secondary badge-pill ml-1">{{ counts().resolved }}</span>
-            }
-          </button>
-        </li>
+        <button
+          type="button"
+          class="tab-btn flex-fill d-flex align-items-center justify-content-center gap-1 py-2"
+          [class.tab-active]="activeTab() === tab.value"
+          (click)="tabChanged.emit(tab.value)"
+        >
+          <span style="font-size:0.78rem;font-weight:500;">{{ tab.label }}</span>
+          @if (getCount(tab.value) > 0) {
+            <span class="badge badge-pill" style="font-size:0.6rem;background:#6c757d;color:#fff;">
+              {{ getCount(tab.value) }}
+            </span>
+          }
+        </button>
       }
-    </ul>
+    </div>
   `,
+  styles: [`
+    .tab-btn {
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: #6c757d;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tab-btn:hover { color: #333; background: #f8f9fa; }
+    .tab-active { color: #1F93FF !important; border-bottom-color: #1F93FF !important; font-weight: 600 !important; }
+  `],
 })
 export class TabFilterComponent {
   readonly activeTab = input.required<ConversationTab>();
-  readonly counts = input.required<{ bot: number; human: number; resolved: number }>();
+  readonly counts = input.required<{ mine: number; unassigned: number; all: number; resolved: number }>();
   readonly tabChanged = output<ConversationTab>();
 
   readonly tabs: ReadonlyArray<{ label: string; value: ConversationTab }> = [
-    { label: 'Bot', value: ConversationTab.BOT },
-    { label: 'Humano', value: ConversationTab.HUMAN },
+    { label: 'Minhas', value: ConversationTab.MINE },
+    { label: 'Não atribuídas', value: ConversationTab.UNASSIGNED },
+    { label: 'Todas', value: ConversationTab.ALL },
     { label: 'Resolvidas', value: ConversationTab.RESOLVED },
   ];
+
+  getCount(tab: ConversationTab): number {
+    const c = this.counts();
+    const map: Record<ConversationTab, number> = {
+      [ConversationTab.MINE]: c.mine,
+      [ConversationTab.UNASSIGNED]: c.unassigned,
+      [ConversationTab.ALL]: c.all,
+      [ConversationTab.RESOLVED]: c.resolved,
+    };
+    return map[tab] ?? 0;
+  }
 }

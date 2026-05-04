@@ -14,42 +14,80 @@ import { TruncatePipe } from '../../../../shared/pipes/truncate.pipe';
       (click)="selected.emit(conversation().id)"
       class="w-100 d-flex align-items-start p-3 border-0 text-left conv-item"
       [class.conv-item-active]="isActive()"
-      style="background:transparent; border-left: 3px solid transparent; cursor:pointer; transition:all 0.15s;">
+    >
       <!-- Avatar -->
       <div class="position-relative mr-3 flex-shrink-0">
-        <div class="d-flex align-items-center justify-content-center rounded-circle font-weight-600"
-          style="width:38px;height:38px;background:rgba(79,110,247,0.12);color:#4F6EF7;font-size:13px;">
+        <div class="avatar-circle d-flex align-items-center justify-content-center rounded-circle font-weight-bold">
           {{ getInitials(conversation().leadName) }}
         </div>
-        <span class="position-absolute rounded-circle border border-white"
-          [style.background]="statusDotColor"
-          style="width:10px;height:10px;bottom:-1px;right:-1px;"></span>
+        <span class="status-dot position-absolute rounded-circle border border-white"
+          [style.background]="statusColor"></span>
       </div>
 
       <!-- Conteúdo -->
       <div class="flex-grow-1 min-w-0">
         <div class="d-flex align-items-center justify-content-between mb-1">
-          <span class="font-weight-600 text-truncate" style="font-size:0.83rem;color:#333;">
+          <span class="font-weight-600 text-truncate" style="font-size:0.83rem;color:#1a1a2e;max-width:150px;">
             {{ conversation().leadName }}
           </span>
-          <small class="text-muted text-nowrap ml-2">{{ conversation().lastMessageAt | timeAgo }}</small>
+          <small class="text-muted text-nowrap ml-1" style="font-size:0.7rem;">
+            {{ conversation().lastMessageAt | timeAgo }}
+          </small>
         </div>
-        <p class="text-muted mb-0 text-truncate" style="font-size:0.78rem;">
-          {{ conversation().lastMessage | truncate:50 }}
+
+        <p class="mb-1 text-truncate" style="font-size:0.75rem;color:#6c757d;">
+          {{ conversation().lastMessage | truncate:45 }}
         </p>
+
+        @if (conversation().labels && conversation().labels.length > 0) {
+          <div class="d-flex flex-wrap gap-1">
+            @for (label of conversation().labels; track label.id) {
+              <span class="label-badge"
+                [style.background-color]="label.color + '22'"
+                [style.color]="label.color"
+                [style.border-color]="label.color + '55'">
+                {{ label.name }}
+              </span>
+            }
+          </div>
+        }
       </div>
 
-      <!-- Badge não lido -->
+      <!-- Unread badge -->
       @if (conversation().unreadCount > 0) {
-        <span class="badge badge-pill badge-primary ml-2 align-self-center" style="font-size:0.65rem;">
+        <span class="badge badge-pill ml-2 align-self-start mt-1"
+          style="background:#1F93FF;color:#fff;font-size:0.65rem;min-width:18px;">
           {{ conversation().unreadCount }}
         </span>
       }
     </button>
   `,
   styles: [`
-    .conv-item:hover { background: #f8f9fc !important; border-left-color: #4F6EF7 !important; }
-    .conv-item-active { background: rgba(79,110,247,0.06) !important; border-left-color: #4F6EF7 !important; }
+    .conv-item {
+      background: transparent;
+      border-left: 2px solid transparent !important;
+      cursor: pointer;
+      transition: all 0.12s;
+      border-bottom: 1px solid #f0f0f0 !important;
+    }
+    .conv-item:hover { background: #f5f7ff !important; }
+    .conv-item-active {
+      background: #EBF2FF !important;
+      border-left-color: #1F93FF !important;
+    }
+    .avatar-circle {
+      width: 36px; height: 36px;
+      background: #dde5ff; color: #3B5BDB;
+      font-size: 12px; flex-shrink: 0;
+    }
+    .status-dot { width: 9px; height: 9px; bottom: -1px; right: -1px; }
+    .label-badge {
+      font-size: 0.6rem;
+      padding: 1px 6px;
+      border-radius: 10px;
+      border: 1px solid;
+      font-weight: 500;
+    }
   `],
 })
 export class ConversationListItemComponent {
@@ -57,18 +95,18 @@ export class ConversationListItemComponent {
   readonly isActive = input(false);
   readonly selected = output<string>();
 
-  get statusDotColor(): string {
-    const colorMap: Record<ConversationStatus, string> = {
-      [ConversationStatus.HUMAN]: '#28C76F',
-      [ConversationStatus.BOT]: '#EA5455',
-      [ConversationStatus.UNASSIGNED]: '#FF9F43',
-      [ConversationStatus.RESOLVED]: '#aaa',
+  get statusColor(): string {
+    const map: Record<ConversationStatus, string> = {
+      [ConversationStatus.HUMAN]: '#40C057',
+      [ConversationStatus.BOT]: '#FA5252',
+      [ConversationStatus.UNASSIGNED]: '#FD7E14',
+      [ConversationStatus.RESOLVED]: '#adb5bd',
     };
-    return colorMap[this.conversation().status];
+    return map[this.conversation().status] ?? '#adb5bd';
   }
 
   getInitials(name: string): string {
-    return name
+    return (name ?? '?')
       .split(' ')
       .slice(0, 2)
       .map((n) => n[0])

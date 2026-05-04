@@ -35,12 +35,12 @@ export const selectFilteredConversations = createSelector(
   selectCurrentTab,
   (conversations, tab) => {
     switch (tab) {
-      case ConversationTab.BOT:
-        return conversations.filter(
-          (c) => c.status === 'BOT' || c.status === 'UNASSIGNED',
-        );
-      case ConversationTab.HUMAN:
+      case ConversationTab.MINE:
         return conversations.filter((c) => c.status === 'HUMAN');
+      case ConversationTab.UNASSIGNED:
+        return conversations.filter((c) => c.status === 'UNASSIGNED' || c.status === 'BOT');
+      case ConversationTab.ALL:
+        return conversations.filter((c) => c.status !== 'RESOLVED');
       case ConversationTab.RESOLVED:
         return conversations.filter((c) => c.status === 'RESOLVED');
       default:
@@ -92,10 +92,9 @@ export const selectTypingIndicators = createSelector(
 export const selectTabCounts = createSelector(
   selectAllConversations,
   (conversations) => ({
-    bot: conversations.filter(
-      (c) => c.status === 'BOT' || c.status === 'UNASSIGNED',
-    ).length,
-    human: conversations.filter((c) => c.status === 'HUMAN').length,
+    mine: conversations.filter((c) => c.status === 'HUMAN').length,
+    unassigned: conversations.filter((c) => c.status === 'UNASSIGNED' || c.status === 'BOT').length,
+    all: conversations.filter((c) => c.status !== 'RESOLVED').length,
     resolved: conversations.filter((c) => c.status === 'RESOLVED').length,
   }),
 );
