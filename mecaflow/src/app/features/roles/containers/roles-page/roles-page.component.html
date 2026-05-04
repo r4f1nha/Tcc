@@ -1,0 +1,68 @@
+<section class="roles-page">
+  <div class="page-header">
+    <div>
+      <h1>Permissões</h1>
+      <p>Gerencie o que cada perfil pode acessar no sistema.</p>
+    </div>
+
+    <button class="primary-button" type="button">+ Nova Regra</button>
+  </div>
+
+  <div class="roles-grid">
+    <article class="role-card" *ngFor="let role of roles">
+      <h2>{{ role.name }}</h2>
+      <p>{{ role.description }}</p>
+
+      <button type="button" (click)="openRole(role.name)">
+        Editar permissões
+      </button>
+    </article>
+  </div>
+</section>
+
+<div class="role-modal-backdrop" *ngIf="selectedRole as role" (click)="closeModal()">
+  <div class="role-modal" (click)="$event.stopPropagation()">
+    <div class="role-modal-header">
+      <h2>Permissões - {{ role }}</h2>
+
+      <button class="close-button" type="button" (click)="closeModal()">
+        ×
+      </button>
+    </div>
+
+    <div *ngIf="loading" class="loading">
+      Carregando permissões...
+    </div>
+
+    <div *ngIf="!loading && permissions.length === 0" class="empty-state">
+      Nenhuma permissão encontrada para este perfil.
+    </div>
+
+    <div class="permissions-list" *ngIf="!loading && permissions.length > 0">
+      <label *ngFor="let perm of permissions" class="permission-item">
+        <input
+          type="checkbox"
+          [checked]="perm.enabled"
+          (change)="togglePermission(perm.name)"
+        />
+
+        <span>{{ perm.label || perm.name }}</span>
+      </label>
+    </div>
+
+    <div class="role-modal-footer">
+      <button class="secondary-button" type="button" (click)="closeModal()">
+        Cancelar
+      </button>
+
+      <button
+        class="save-button"
+        type="button"
+        (click)="save()"
+        [disabled]="loading || permissions.length === 0"
+      >
+        Salvar
+      </button>
+    </div>
+  </div>
+</div>

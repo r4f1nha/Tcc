@@ -18,8 +18,10 @@ export interface TeamMember {
   readonly id: string;
   readonly name: string;
   readonly email: string;
+  readonly phone?: string;
   readonly role: UserRole;
-  readonly status: MemberStatus;
+  readonly active: boolean;
+  readonly status?: MemberStatus;
   readonly lastAccessAt: string | null;
   readonly teamIds: ReadonlyArray<string>;
   readonly avatarUrl: string | null;
@@ -28,6 +30,17 @@ export interface TeamMember {
 export interface CreateUserPayload {
   readonly name: string;
   readonly email: string;
+  readonly phone: string;
   readonly role: UserRole;
+  readonly password: string;
   readonly teamIds: ReadonlyArray<string>;
+}
+
+export interface UpdateUserPayload {
+  readonly name: string;
+  readonly email: string;
+  readonly phone: string;
+  readonly role: UserRole;
+  readonly password?: string;
+  readonly teamIds?: ReadonlyArray<string>;
 }

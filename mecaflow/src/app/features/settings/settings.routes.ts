@@ -6,7 +6,7 @@ import { UserRole } from '../../core/auth/models/user.model';
 export const SETTINGS_ROUTES: Routes = [
   {
     path: '',
-    canActivate: [authGuard, roleGuard([UserRole.OWNER, UserRole.ADMIN])],
+    canActivate: [authGuard, roleGuard([UserRole.OWNER, UserRole.ADMIN, UserRole.AGENT])],
     loadComponent: () =>
       import('./containers/settings-page/settings-page.component').then(
         (m) => m.SettingsPageComponent,

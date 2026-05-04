@@ -15,6 +15,7 @@ import { LoginFormData } from '../../models/auth-form.model';
   imports: [ReactiveFormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './login-form.component.html',
+  styleUrl: './login-form.component.css',
 })
 export class LoginFormComponent {
   private readonly fb = inject(FormBuilder);
@@ -23,7 +24,6 @@ export class LoginFormComponent {
   readonly errorMessage = input<string | null>(null);
 
   readonly submitLogin = output<LoginFormData>();
-  readonly navigateToForgotPassword = output<void>();
 
   readonly loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -40,15 +40,11 @@ export class LoginFormComponent {
   onSubmit(): void {
     if (this.loginForm.valid) {
       const { email, password, rememberMe } = this.loginForm.getRawValue();
-      const formData: LoginFormData = { email, password, rememberMe };
-      this.submitLogin.emit(formData);
-    } else {
-      this.loginForm.markAllAsTouched();
+      this.submitLogin.emit({ email, password, rememberMe });
+      return;
     }
-  }
 
-  onForgotPassword(): void {
-    this.navigateToForgotPassword.emit();
+    this.loginForm.markAllAsTouched();
   }
 
   get emailInvalid(): boolean {
@@ -63,23 +59,29 @@ export class LoginFormComponent {
 
   get emailErrorMessage(): string {
     const control = this.loginForm.controls.email;
+
     if (control.hasError('required')) {
-      return 'O e-mail e obrigatorio';
+      return 'O e-mail é obrigatório';
     }
+
     if (control.hasError('email')) {
-      return 'Informe um e-mail valido';
+      return 'Informe um e-mail válido';
     }
+
     return '';
   }
 
   get passwordErrorMessage(): string {
     const control = this.loginForm.controls.password;
+
     if (control.hasError('required')) {
-      return 'A senha e obrigatoria';
+      return 'A senha é obrigatória';
     }
+
     if (control.hasError('minlength')) {
       return 'A senha deve ter pelo menos 6 caracteres';
     }
+
     return '';
   }
 }
