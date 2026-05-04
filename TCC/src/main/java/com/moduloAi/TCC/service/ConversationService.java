@@ -14,6 +14,7 @@ import com.moduloAi.TCC.repository.MessageRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,15 +30,18 @@ public class ConversationService {
     private final MessageRepository messageRepository;
     private final LabelRepository labelRepository;
     private final WahaApiService wahaApiService;
+    private final StringRedisTemplate redisTemplate;
 
     public ConversationService(ConversationRepository conversationRepository,
                                MessageRepository messageRepository,
                                LabelRepository labelRepository,
-                               WahaApiService wahaApiService) {
+                               WahaApiService wahaApiService,
+                               StringRedisTemplate redisTemplate) {
         this.conversationRepository = conversationRepository;
         this.messageRepository = messageRepository;
         this.labelRepository = labelRepository;
         this.wahaApiService = wahaApiService;
+        this.redisTemplate = redisTemplate;
     }
 
     public Conversation findOrCreateConversation(String wahaChatId, String leadName, String leadPhone, String session) {
@@ -156,13 +160,21 @@ public class ConversationService {
     public ConversationResponse setHumanMode(Long conversationId) {
         Conversation conversation = findById(conversationId);
         conversation.setStatus(Conversation.ConversationStatus.HUMAN);
+        // Bloqueia o bot no Redis compartilhado com n8n (sem TTL = permanente)
+        redisTemplate.opsForValue().set(redisKey(conversation.getWahaChatId()), "true");
         return toResponse(conversationRepository.save(conversation));
     }
 
     public ConversationResponse setBotMode(Long conversationId) {
         Conversation conversation = findById(conversationId);
         conversation.setStatus(Conversation.ConversationStatus.BOT);
+        // Libera o bot deletando a chave do Redis
+        redisTemplate.delete(redisKey(conversation.getWahaChatId()));
         return toResponse(conversationRepository.save(conversation));
+    }
+
+    private String redisKey(String wahaChatId) {
+        return "CloudSolutions_" + wahaChatId + "_block";
     }
 
     private Conversation findById(Long id) {
