@@ -11,5 +11,5 @@ public record UserRequest(
         @NotBlank @Email String email,
         String phone,
         @NotNull User.Role role,
-        @NotBlank @Size(min = 6) String password
+        @Size(min = 6) String password
 ) {}

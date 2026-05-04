@@ -13,6 +13,8 @@ import java.util.List;
 @Service
 public class UserService {
 
+    private static final String DEFAULT_TENANT_ID = "tenant-001";
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -22,7 +24,8 @@ public class UserService {
     }
 
     public List<UserResponse> list() {
-        return userRepository.findByActiveTrue().stream()
+        return userRepository.findAll()
+                .stream()
                 .map(this::toResponse)
                 .toList();
     }
@@ -37,32 +40,80 @@ public class UserService {
         if (userRepository.findByEmail(request.email()).isPresent()) {
             throw new IllegalArgumentException("Email already in use: " + request.email());
         }
-        User user = new User(request.name(), request.email(), request.phone(), request.role(),
-                passwordEncoder.encode(request.password()));
+
+        if (request.password() == null || request.password().isBlank()) {
+            throw new IllegalArgumentException("Password is required");
+        }
+
+        User user = new User(
+                request.name(),
+                request.email(),
+                request.phone(),
+                request.role(),
+                passwordEncoder.encode(request.password()),
+                DEFAULT_TENANT_ID
+        );
+
+        user.setActive(true);
+
         return toResponse(userRepository.save(user));
     }
 
     public UserResponse update(Long id, UserRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found: " + id));
+
         user.setName(request.name());
         user.setEmail(request.email());
         user.setPhone(request.phone());
         user.setRole(request.role());
+
+        if (request.password() != null && !request.password().isBlank()) {
+            user.setPasswordHash(passwordEncoder.encode(request.password()));
+        }
+
+        if (user.getTenantId() == null || user.getTenantId().isBlank()) {
+            user.setTenantId(DEFAULT_TENANT_ID);
+        }
+
+        return toResponse(userRepository.save(user));
+    }
+
+    public UserResponse deactivate(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found: " + id));
+
+        user.setActive(false);
+
+        return toResponse(userRepository.save(user));
+    }
+
+    public UserResponse activate(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found: " + id));
+
+        user.setActive(true);
+
         return toResponse(userRepository.save(user));
     }
 
     public void delete(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User not found: " + id));
-        user.setActive(false);
-        userRepository.save(user);
+        if (!userRepository.existsById(id)) {
+            throw new EntityNotFoundException("User not found: " + id);
+        }
+
+        userRepository.deleteById(id);
     }
 
     private UserResponse toResponse(User user) {
         return new UserResponse(
-                user.getId(), user.getName(), user.getEmail(),
-                user.getPhone(), user.getRole(), user.isActive(), user.getCreatedAt()
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getPhone(),
+                user.getRole(),
+                user.isActive(),
+                user.getCreatedAt()
         );
     }
 }
