@@ -1,13 +1,13 @@
 import { Routes } from '@angular/router';
 import { authGuard } from '../../core/auth/guards/auth.guard';
 
-export const KNOWLEDGE_BASE_ROUTES: Routes = [
+export const TEAMS_ROUTES: Routes = [
   {
     path: '',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./containers/knowledge-base-page/knowledge-base-page.component').then(
-        (m) => m.KnowledgeBasePageComponent,
+      import('./containers/users-page/users-page.component').then(
+        (m) => m.TeamsPageComponent,
       ),
   },
 ];

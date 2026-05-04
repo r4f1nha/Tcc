@@ -53,6 +53,6 @@ export class LoginPageComponent {
   }
 
   onNavigateToForgotPassword(): void {
-    this.router.navigate(['/forgot-password']);
-  }
+  this.router.navigate(['/auth/forgot-password']);
+}
 }

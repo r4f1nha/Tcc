@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { CreateUserPayload, Team, TeamMember } from '../models/team.model';
+import { CreateUserPayload, Team, TeamMember, UpdateUserPayload } from '../models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class TeamService {
@@ -10,7 +10,6 @@ export class TeamService {
   private readonly API = `${environment.apiUrl}/teams`;
   private readonly USERS_API = `${environment.apiUrl}/users`;
 
-  // Teams
   getAllTeams(): Observable<ReadonlyArray<Team>> {
     return this.http.get<ReadonlyArray<Team>>(this.API);
   }
@@ -35,7 +34,6 @@ export class TeamService {
     return this.http.delete<void>(`${this.API}/${teamId}/members/${userId}`);
   }
 
-  // Users
   getAllUsers(): Observable<ReadonlyArray<TeamMember>> {
     return this.http.get<ReadonlyArray<TeamMember>>(this.USERS_API);
   }
@@ -43,6 +41,10 @@ export class TeamService {
   createUser(payload: CreateUserPayload): Observable<TeamMember> {
     return this.http.post<TeamMember>(this.USERS_API, payload);
   }
+
+  updateUser(userId: string, payload: UpdateUserPayload): Observable<TeamMember> {
+  return this.http.put<TeamMember>(`${this.USERS_API}/${userId}`, payload);
+}
 
   updateUserRole(userId: string, role: string): Observable<TeamMember> {
     return this.http.patch<TeamMember>(`${this.USERS_API}/${userId}/role`, { role });
@@ -54,5 +56,9 @@ export class TeamService {
 
   activateUser(userId: string): Observable<TeamMember> {
     return this.http.patch<TeamMember>(`${this.USERS_API}/${userId}/activate`, {});
+  }
+
+  deleteUser(userId: string): Observable<void> {
+    return this.http.delete<void>(`${this.USERS_API}/${userId}`);
   }
 }

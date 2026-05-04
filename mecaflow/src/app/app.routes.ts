@@ -57,15 +57,20 @@ export const routes: Routes = [
           import('./features/labels/labels.routes').then((m) => m.LABELS_ROUTES),
       },
       {
-        path: 'teams',
+        path: 'users',
         loadChildren: () =>
-          import('./features/teams/teams.routes').then((m) => m.TEAMS_ROUTES),
+          import('./features/users/users.routes').then((m) => m.TEAMS_ROUTES),
       },
       {
         path: 'settings',
         loadChildren: () =>
           import('./features/settings/settings.routes').then((m) => m.SETTINGS_ROUTES),
       },
+      {
+  path: 'permissions',
+  loadChildren: () =>
+    import('./features/roles/roles.routes').then((m) => m.ROLES_ROUTES),
+},
       {
         path: '',
         redirectTo: 'dashboard',

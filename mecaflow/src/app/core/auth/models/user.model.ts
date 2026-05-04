@@ -10,6 +10,10 @@ export interface User {
   email: string;
   role: UserRole;
   tenantId: string;
+
+  // 👇 ADICIONA ISSO
+  permissions?: string[];
+
   avatarUrl: string | null;
   active: boolean;
   createdAt: string;
