@@ -2,13 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { CreateLeadPayload, Lead } from '../models/lead.model';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LeadService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:8080/api/leads';
+  private readonly apiUrl = `${environment.apiUrl}/leads`;
 
   list(): Observable<Lead[]> {
     return this.http.get<Lead[]>(this.apiUrl);

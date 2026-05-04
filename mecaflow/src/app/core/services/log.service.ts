@@ -47,11 +47,7 @@ export class LogService {
       ...(details && { details }),
     };
 
-    if (environment.production) {
-      this.sendToBackend(entry);
-    } else {
-      this.writeToConsole(entry);
-    }
+    this.writeToConsole(entry);
   }
 
   private sendToBackend(entry: LogEntry): void {

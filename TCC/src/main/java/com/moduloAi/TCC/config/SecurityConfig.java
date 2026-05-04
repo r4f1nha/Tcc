@@ -42,7 +42,8 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/webhooks/**", "/error").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/auth/**", "/webhooks/**", "/sse/**", "/error").permitAll()
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .requestMatchers("/leads/**").permitAll()
                         .requestMatchers("/service-orders/**").permitAll()
@@ -60,7 +61,17 @@ public class SecurityConfig {
 
         config.setAllowedOrigins(List.of(
                 "http://localhost:4200",
-                "http://localhost:5173"
+                "http://localhost:5173",
+                "https://portfloio-meca-flow.e4xqua.easypanel.host"
+        ));
+
+        config.setAllowedMethods(List.of(
+                "GET",
+                "POST",
+                "PUT",
+                "PATCH",
+                "DELETE",
+                "OPTIONS"
         ));
 
         config.setAllowedMethods(List.of(

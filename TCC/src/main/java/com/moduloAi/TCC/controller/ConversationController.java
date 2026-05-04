@@ -1,10 +1,8 @@
 package com.moduloAi.TCC.controller;
 
-import com.moduloAi.TCC.domain.Conversation;
 import com.moduloAi.TCC.dto.*;
 import com.moduloAi.TCC.service.ConversationService;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,11 +19,8 @@ public class ConversationController {
     }
 
     @GetMapping
-    public List<ConversationResponse> list(@RequestParam(required = false) String status) {
-        Conversation.ConversationStatus statusEnum = status != null
-                ? Conversation.ConversationStatus.valueOf(status.toUpperCase())
-                : null;
-        return conversationService.getAll(statusEnum);
+    public List<ConversationResponse> list(@RequestParam(required = false) String tab) {
+        return conversationService.getAll(tab);
     }
 
     @GetMapping("/{id}")
@@ -34,18 +29,17 @@ public class ConversationController {
     }
 
     @GetMapping("/{id}/messages")
-    public Page<MessageResponse> getMessages(
+    public MessagePageResponse getMessages(
             @PathVariable Long id,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size) {
         return conversationService.getMessages(id, page, size);
     }
 
-    @PostMapping("/{id}/send")
-    public ResponseEntity<Void> sendMessage(@PathVariable Long id,
-                                            @Valid @RequestBody SendMessageRequest request) {
-        conversationService.sendMessage(id, request.content());
-        return ResponseEntity.ok().build();
+    @PostMapping("/{id}/messages")
+    public ResponseEntity<MessageResponse> sendMessage(@PathVariable Long id,
+                                                       @Valid @RequestBody SendMessageRequest request) {
+        return ResponseEntity.ok(conversationService.sendMessage(id, request.content()));
     }
 
     @PatchMapping("/{id}/resolve")

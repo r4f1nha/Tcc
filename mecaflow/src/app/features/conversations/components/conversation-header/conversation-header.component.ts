@@ -9,34 +9,60 @@ import { Conversation, ConversationStatus } from '../../models/conversation.mode
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="d-flex align-items-center justify-content-between px-3 py-2 border-bottom bg-white">
-      <div class="d-flex align-items-center gap-2">
-        <div class="d-flex align-items-center justify-content-center rounded-circle font-weight-600 mr-2"
-          style="width:38px;height:38px;background:rgba(79,110,247,0.12);color:#4F6EF7;font-size:13px;flex-shrink:0;">
+      <div class="d-flex align-items-center">
+        <div class="avatar-circle d-flex align-items-center justify-content-center rounded-circle font-weight-bold mr-2 flex-shrink-0">
           {{ getInitials(conversation().leadName) }}
         </div>
         <div>
-          <h6 class="mb-0 font-weight-600" style="font-size:0.9rem;">{{ conversation().leadName }}</h6>
-          <small class="text-muted">{{ conversation().leadPhone }}</small>
+          <div class="d-flex align-items-center gap-2">
+            <span class="font-weight-600" style="font-size:0.9rem;color:#1a1a2e;">
+              {{ conversation().leadName }}
+            </span>
+            <span class="status-pill" [ngClass]="statusPillClass">{{ statusLabel }}</span>
+          </div>
+          <small class="text-muted" style="font-size:0.72rem;">
+            {{ conversation().leadPhone }}
+            @if (conversation().assignedAgentName) {
+              · <i class="fas fa-user-circle"></i> {{ conversation().assignedAgentName }}
+            }
+          </small>
         </div>
-        <span class="badge badge-pill ml-2" [ngClass]="statusBadgeClass">{{ statusLabel }}</span>
       </div>
+
       <div class="d-flex align-items-center gap-2">
         @if (canAssign) {
-          <button type="button" class="btn btn-sm btn-outline-success" (click)="assignClicked.emit()">
+          <button type="button" class="btn btn-sm btn-outline-primary" (click)="assignClicked.emit()">
             <i class="fas fa-hand-paper mr-1"></i>Assumir
           </button>
         }
-        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="transferClicked.emit()">
-          <i class="fas fa-share mr-1"></i>Transferir
-        </button>
         @if (conversation().status !== ConversationStatus.RESOLVED) {
-          <button type="button" class="btn btn-sm btn-outline-primary" (click)="resolveClicked.emit()">
+          <button type="button" class="btn btn-sm btn-success text-white" (click)="resolveClicked.emit()">
             <i class="fas fa-check mr-1"></i>Resolver
           </button>
         }
+        <button type="button" class="btn btn-sm btn-light" style="color:#6c757d;" title="Mais opções">
+          <i class="fas fa-ellipsis-v"></i>
+        </button>
       </div>
     </div>
   `,
+  styles: [`
+    .avatar-circle {
+      width: 36px; height: 36px;
+      background: #dde5ff; color: #3B5BDB;
+      font-size: 13px;
+    }
+    .status-pill {
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+    .pill-human { background: #d3f9d8; color: #2f9e44; }
+    .pill-bot { background: #ffe3e3; color: #c92a2a; }
+    .pill-unassigned { background: #fff3bf; color: #e67700; }
+    .pill-resolved { background: #e9ecef; color: #6c757d; }
+  `],
 })
 export class ConversationHeaderComponent {
   readonly conversation = input.required<Conversation>();
@@ -47,34 +73,31 @@ export class ConversationHeaderComponent {
   protected readonly ConversationStatus = ConversationStatus;
 
   get canAssign(): boolean {
-    const status = this.conversation().status;
-    return (
-      status === ConversationStatus.BOT ||
-      status === ConversationStatus.UNASSIGNED
-    );
+    const s = this.conversation().status;
+    return s === ConversationStatus.BOT || s === ConversationStatus.UNASSIGNED;
   }
 
   get statusLabel(): string {
-    const labels: Record<ConversationStatus, string> = {
+    const map: Record<ConversationStatus, string> = {
       [ConversationStatus.BOT]: 'Bot',
-      [ConversationStatus.HUMAN]: 'Humano',
+      [ConversationStatus.HUMAN]: 'Em atendimento',
       [ConversationStatus.UNASSIGNED]: 'Não atribuída',
       [ConversationStatus.RESOLVED]: 'Resolvida',
     };
-    return labels[this.conversation().status];
+    return map[this.conversation().status];
   }
 
-  get statusBadgeClass(): string {
-    const classes: Record<ConversationStatus, string> = {
-      [ConversationStatus.BOT]: 'badge-danger',
-      [ConversationStatus.HUMAN]: 'badge-success',
-      [ConversationStatus.UNASSIGNED]: 'badge-warning',
-      [ConversationStatus.RESOLVED]: 'badge-secondary',
+  get statusPillClass(): string {
+    const map: Record<ConversationStatus, string> = {
+      [ConversationStatus.BOT]: 'pill-bot',
+      [ConversationStatus.HUMAN]: 'pill-human',
+      [ConversationStatus.UNASSIGNED]: 'pill-unassigned',
+      [ConversationStatus.RESOLVED]: 'pill-resolved',
     };
-    return classes[this.conversation().status];
+    return map[this.conversation().status];
   }
 
   getInitials(name: string): string {
-    return name.split(' ').slice(0, 2).map((n) => n[0]).join('').toUpperCase();
+    return (name ?? '?').split(' ').slice(0, 2).map((n) => n[0]).join('').toUpperCase();
   }
 }
