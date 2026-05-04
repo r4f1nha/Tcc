@@ -7,14 +7,13 @@ import {
   ServiceOrderKanbanResponse,
   ServiceOrderStatus,
 } from '../models/service-order';
-import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ServiceOrderService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.apiUrl}/service-orders`;
+  private readonly apiUrl = 'http://localhost:8080/api/service-orders';
 
   getAll(
     filters?: Record<string, string | number | boolean | null | undefined>,

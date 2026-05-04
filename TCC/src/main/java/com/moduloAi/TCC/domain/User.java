@@ -10,7 +10,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Getter @Setter @NoArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
 @Table(name = "users")
 public class User {
 
@@ -33,8 +35,8 @@ public class User {
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
-    @Column(name = "tenant_id")
-    private String tenantId = "default";
+    @Column(name = "tenant_id", nullable = false)
+    private String tenantId;
 
     @Column(nullable = false)
     private boolean active = true;
@@ -47,12 +49,13 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public User(String name, String email, String phone, Role role, String passwordHash) {
+    public User(String name, String email, String phone, Role role, String passwordHash, String tenantId) {
         this.name = name;
         this.email = email;
         this.phone = phone;
         this.role = role;
         this.passwordHash = passwordHash;
+        this.tenantId = tenantId;
     }
 
     public enum Role {

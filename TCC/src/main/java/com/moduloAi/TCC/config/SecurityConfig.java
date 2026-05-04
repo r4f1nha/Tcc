@@ -47,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .requestMatchers("/leads/**").permitAll()
                         .requestMatchers("/service-orders/**").permitAll()
+                        .requestMatchers("/api/roles/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
@@ -62,6 +63,15 @@ public class SecurityConfig {
                 "http://localhost:4200",
                 "http://localhost:5173",
                 "https://portfloio-meca-flow.e4xqua.easypanel.host"
+        ));
+
+        config.setAllowedMethods(List.of(
+                "GET",
+                "POST",
+                "PUT",
+                "PATCH",
+                "DELETE",
+                "OPTIONS"
         ));
 
         config.setAllowedMethods(List.of(

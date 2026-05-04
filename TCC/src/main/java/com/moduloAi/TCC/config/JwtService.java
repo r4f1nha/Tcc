@@ -22,7 +22,8 @@ public class JwtService {
     public JwtService(
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.access-token-expiration}") long accessTokenExpiration,
-            @Value("${jwt.refresh-token-expiration}") long refreshTokenExpiration) {
+            @Value("${jwt.refresh-token-expiration}") long refreshTokenExpiration
+    ) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.accessTokenExpiration = accessTokenExpiration;
         this.refreshTokenExpiration = refreshTokenExpiration;
@@ -57,14 +58,19 @@ public class JwtService {
     }
 
     private String buildToken(User user, long expirationMs) {
+        if (user.getTenantId() == null || user.getTenantId().isBlank()) {
+            throw new RuntimeException("Usuário sem tenantId. Corrija antes de gerar token.");
+        }
+
         Date now = new Date();
+
         return Jwts.builder()
                 .subject(String.valueOf(user.getId()))
                 .claims(Map.of(
                         "name", user.getName(),
                         "email", user.getEmail(),
                         "role", user.getRole().name(),
-                        "tenantId", user.getTenantId() != null ? user.getTenantId() : "default"
+                        "tenantId", user.getTenantId()
                 ))
                 .issuedAt(now)
                 .expiration(new Date(now.getTime() + expirationMs))
