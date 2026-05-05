@@ -28,7 +28,7 @@ export const ConversationActions = createActionGroup({
     'Change Tab': props<{ tab: ConversationTab }>(),
     'Set Filters': props<{ filters: ConversationFilters }>(),
 
-    'Assign To Agent': props<{ conversationId: string; agentId: string }>(),
+    'Assign To Agent': props<{ conversationId: string; agentId: string; agentName: string }>(),
     'Assign To Agent Success': props<{ conversation: Conversation }>(),
 
     'Transfer Conversation': props<{ conversationId: string; targetId: string }>(),
@@ -36,6 +36,9 @@ export const ConversationActions = createActionGroup({
 
     'Resolve Conversation': props<{ conversationId: string }>(),
     'Resolve Success': props<{ conversation: Conversation }>(),
+
+    'Reopen Conversation': props<{ conversationId: string }>(),
+    'Reopen Success': props<{ conversation: Conversation }>(),
 
     'Add Label': props<{ conversationId: string; labelId: string }>(),
     'Remove Label': props<{ conversationId: string; labelId: string }>(),

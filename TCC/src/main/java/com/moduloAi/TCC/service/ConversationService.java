@@ -138,6 +138,15 @@ public class ConversationService {
         Conversation conversation = findById(conversationId);
         conversation.setAssignedAgentId(request.agentId());
         conversation.setAssignedAgentName(request.agentName());
+        conversation.setStatus(Conversation.ConversationStatus.HUMAN);
+        return toResponse(conversationRepository.save(conversation));
+    }
+
+    public ConversationResponse reopen(Long conversationId) {
+        Conversation conversation = findById(conversationId);
+        conversation.setStatus(Conversation.ConversationStatus.UNASSIGNED);
+        conversation.setAssignedAgentId(null);
+        conversation.setAssignedAgentName(null);
         return toResponse(conversationRepository.save(conversation));
     }
 

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { Conversation, ConversationStatus } from '../../models/conversation.model';
 
@@ -21,9 +21,8 @@ import { Conversation, ConversationStatus } from '../../models/conversation.mode
             <span class="status-pill" [ngClass]="statusPillClass">{{ statusLabel }}</span>
           </div>
           <small class="text-muted" style="font-size:0.72rem;">
-            {{ conversation().leadPhone }}
             @if (conversation().assignedAgentName) {
-              · <i class="fas fa-user-circle"></i> {{ conversation().assignedAgentName }}
+              <i class="fas fa-user-circle"></i> {{ conversation().assignedAgentName }}
             }
           </small>
         </div>
@@ -40,9 +39,32 @@ import { Conversation, ConversationStatus } from '../../models/conversation.mode
             <i class="fas fa-check mr-1"></i>Resolver
           </button>
         }
-        <button type="button" class="btn btn-sm btn-light" style="color:#6c757d;" title="Mais opções">
-          <i class="fas fa-ellipsis-v"></i>
-        </button>
+
+        <!-- Mais opções dropdown -->
+        <div class="position-relative">
+          <button type="button" class="btn btn-sm btn-light" style="color:#6c757d;"
+            (click)="menuOpen.set(!menuOpen())" title="Mais opções">
+            <i class="fas fa-ellipsis-v"></i>
+          </button>
+          @if (menuOpen()) {
+            <div class="dropdown-menu show position-absolute"
+              style="right:0;top:100%;min-width:160px;z-index:1050;">
+              @if (conversation().status === ConversationStatus.RESOLVED) {
+                <button type="button" class="dropdown-item" (click)="onReopen()">
+                  <i class="fas fa-redo mr-2 text-primary"></i>Reabrir
+                </button>
+              }
+              @if (conversation().status !== ConversationStatus.RESOLVED) {
+                <button type="button" class="dropdown-item" (click)="onTransfer()">
+                  <i class="fas fa-exchange-alt mr-2 text-secondary"></i>Transferir
+                </button>
+              }
+            </div>
+            <!-- overlay para fechar o menu -->
+            <div class="position-fixed" style="inset:0;z-index:1049;"
+              (click)="menuOpen.set(false)"></div>
+          }
+        </div>
       </div>
     </div>
   `,
@@ -62,6 +84,8 @@ import { Conversation, ConversationStatus } from '../../models/conversation.mode
     .pill-bot { background: #ffe3e3; color: #c92a2a; }
     .pill-unassigned { background: #fff3bf; color: #e67700; }
     .pill-resolved { background: #e9ecef; color: #6c757d; }
+    .dropdown-item { font-size: 0.82rem; cursor: pointer; }
+    .dropdown-item:hover { background: #f5f7ff; }
   `],
 })
 export class ConversationHeaderComponent {
@@ -69,8 +93,10 @@ export class ConversationHeaderComponent {
   readonly assignClicked = output<void>();
   readonly transferClicked = output<void>();
   readonly resolveClicked = output<void>();
+  readonly reopenClicked = output<void>();
 
   protected readonly ConversationStatus = ConversationStatus;
+  readonly menuOpen = signal(false);
 
   get canAssign(): boolean {
     const s = this.conversation().status;
@@ -99,5 +125,15 @@ export class ConversationHeaderComponent {
 
   getInitials(name: string): string {
     return (name ?? '?').split(' ').slice(0, 2).map((n) => n[0]).join('').toUpperCase();
+  }
+
+  onReopen(): void {
+    this.menuOpen.set(false);
+    this.reopenClicked.emit();
+  }
+
+  onTransfer(): void {
+    this.menuOpen.set(false);
+    this.transferClicked.emit();
   }
 }

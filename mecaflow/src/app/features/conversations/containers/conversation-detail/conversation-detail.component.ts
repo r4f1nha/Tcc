@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  effect,
+  inject,
+  untracked,
+  viewChild,
+} from '@angular/core';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { Store } from '@ngrx/store';
 import { ConversationActions } from '../../store/actions/conversation.actions';
@@ -8,10 +16,11 @@ import {
   selectSelectedConversation,
   selectTypingIndicators,
 } from '../../store/selectors/conversation.selectors';
-import { SendMessagePayload } from '../../models/conversation.model';
+import { ConversationStatus, SendMessagePayload } from '../../models/conversation.model';
 import { ConversationHeaderComponent } from '../../components/conversation-header/conversation-header.component';
 import { MessageBubbleComponent } from '../../components/message-bubble/message-bubble.component';
 import { MessageInputComponent } from '../../components/message-input/message-input.component';
+import { AuthService } from '../../../../core/auth/services/auth.service';
 
 @Component({
   selector: 'app-conversation-detail',
@@ -32,10 +41,11 @@ import { MessageInputComponent } from '../../components/message-input/message-in
           (assignClicked)="onAssign()"
           (transferClicked)="onTransfer()"
           (resolveClicked)="onResolve()"
+          (reopenClicked)="onReopen()"
         />
 
         <!-- Messages -->
-        <div class="flex-grow-1 p-3" style="overflow-y:auto; min-height:0;">
+        <div #messagesContainer class="flex-grow-1 p-3" style="overflow-y:auto; min-height:0;">
           @if (messagesLoading()) {
             <div class="text-center py-3">
               <div class="spinner-border spinner-border-sm text-primary" role="status">
@@ -71,15 +81,35 @@ import { MessageInputComponent } from '../../components/message-input/message-in
 })
 export class ConversationDetailComponent {
   private readonly store = inject(Store);
+  private readonly authService = inject(AuthService);
+
+  private readonly messagesContainer = viewChild<ElementRef>('messagesContainer');
 
   readonly conversation = this.store.selectSignal(selectSelectedConversation);
   readonly messages = this.store.selectSignal(selectMessages);
   readonly messagesLoading = this.store.selectSignal(selectMessagesLoading);
   readonly typingIndicators = this.store.selectSignal(selectTypingIndicators);
 
+  constructor() {
+    effect(() => {
+      const msgs = this.messages();
+      untracked(() => {
+        if (msgs.length > 0) {
+          setTimeout(() => {
+            const el = this.messagesContainer()?.nativeElement as HTMLElement | undefined;
+            if (el) el.scrollTop = el.scrollHeight;
+          }, 0);
+        }
+      });
+    });
+  }
+
   isLockedForCurrentAgent(): boolean {
     const conv = this.conversation();
-    return conv?.assignedAgentId !== null && conv?.status === 'HUMAN';
+    if (!conv || conv.status !== ConversationStatus.HUMAN) return false;
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) return false;
+    return conv.assignedAgentId !== null && conv.assignedAgentId !== currentUser.id;
   }
 
   onSendMessage(payload: SendMessagePayload): void {
@@ -88,18 +118,20 @@ export class ConversationDetailComponent {
 
   onAssign(): void {
     const conv = this.conversation();
-    if (conv) {
+    const user = this.authService.getCurrentUser();
+    if (conv && user) {
       this.store.dispatch(
         ConversationActions.assignToAgent({
           conversationId: conv.id,
-          agentId: 'current-user',
+          agentId: user.id,
+          agentName: user.name,
         }),
       );
     }
   }
 
   onTransfer(): void {
-    // Opens transfer modal - to be implemented with modal service
+    // Abre modal de transferência
   }
 
   onResolve(): void {
@@ -107,6 +139,15 @@ export class ConversationDetailComponent {
     if (conv) {
       this.store.dispatch(
         ConversationActions.resolveConversation({ conversationId: conv.id }),
+      );
+    }
+  }
+
+  onReopen(): void {
+    const conv = this.conversation();
+    if (conv) {
+      this.store.dispatch(
+        ConversationActions.reopenConversation({ conversationId: conv.id }),
       );
     }
   }

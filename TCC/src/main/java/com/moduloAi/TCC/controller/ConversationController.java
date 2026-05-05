@@ -47,6 +47,11 @@ public class ConversationController {
         return conversationService.resolve(id);
     }
 
+    @PatchMapping("/{id}/reopen")
+    public ConversationResponse reopen(@PathVariable Long id) {
+        return conversationService.reopen(id);
+    }
+
     @PatchMapping("/{id}/assign")
     public ConversationResponse assign(@PathVariable Long id,
                                        @RequestBody AssignRequest request) {

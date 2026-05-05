@@ -47,10 +47,17 @@ export class ConversationService {
     );
   }
 
-  assignToAgent(conversationId: string, agentId: string): Observable<Conversation> {
+  assignToAgent(conversationId: string, agentId: string, agentName: string): Observable<Conversation> {
     return this.http.patch<Conversation>(
       `${this.API}/${conversationId}/assign`,
-      { agentId },
+      { agentId, agentName },
+    );
+  }
+
+  reopenConversation(conversationId: string): Observable<Conversation> {
+    return this.http.patch<Conversation>(
+      `${this.API}/${conversationId}/reopen`,
+      {},
     );
   }
 

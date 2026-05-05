@@ -15,11 +15,6 @@ import { ConversationTab } from '../../models/conversation.model';
           (click)="tabChanged.emit(tab.value)"
         >
           <span style="font-size:0.78rem;font-weight:500;">{{ tab.label }}</span>
-          @if (getCount(tab.value) > 0) {
-            <span class="badge badge-pill" style="font-size:0.6rem;background:#6c757d;color:#fff;">
-              {{ getCount(tab.value) }}
-            </span>
-          }
         </button>
       }
     </div>

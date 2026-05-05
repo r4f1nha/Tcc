@@ -65,13 +65,18 @@ export const conversationReducer = createReducer(
     error,
   })),
 
-  on(ConversationActions.selectConversation, (state, { conversationId }) => ({
-    ...state,
-    selectedConversationId: conversationId,
-    messages: [],
-    messagesPage: 0,
-    messagesHasMore: false,
-  })),
+  on(ConversationActions.selectConversation, (state, { conversationId }) =>
+    conversationAdapter.updateOne(
+      { id: conversationId, changes: { unreadCount: 0 } },
+      {
+        ...state,
+        selectedConversationId: conversationId,
+        messages: [],
+        messagesPage: 0,
+        messagesHasMore: false,
+      },
+    ),
+  ),
 
   on(ConversationActions.loadMessages, (state) => ({
     ...state,
@@ -103,6 +108,7 @@ export const conversationReducer = createReducer(
     ConversationActions.assignToAgentSuccess,
     ConversationActions.transferSuccess,
     ConversationActions.resolveSuccess,
+    ConversationActions.reopenSuccess,
     ConversationActions.statusChanged,
     ConversationActions.conversationUpdated,
     (state, { conversation }) =>

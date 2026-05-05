@@ -69,10 +69,27 @@ export class ConversationEffects {
   readonly assignToAgent$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ConversationActions.assignToAgent),
-      switchMap(({ conversationId, agentId }) =>
-        this.conversationService.assignToAgent(conversationId, agentId).pipe(
+      switchMap(({ conversationId, agentId, agentName }) =>
+        this.conversationService.assignToAgent(conversationId, agentId, agentName).pipe(
           map((conversation) =>
             ConversationActions.assignToAgentSuccess({ conversation }),
+          ),
+          catchError((error) =>
+            of(ConversationActions.loadConversationsFailure({ error: error.message })),
+          ),
+        ),
+      ),
+    ),
+  );
+
+  readonly reopen$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ConversationActions.reopenConversation),
+      switchMap(({ conversationId }) =>
+        this.conversationService.reopenConversation(conversationId).pipe(
+          map((conversation) => ConversationActions.reopenSuccess({ conversation })),
+          catchError((error) =>
+            of(ConversationActions.loadConversationsFailure({ error: error.message })),
           ),
         ),
       ),
