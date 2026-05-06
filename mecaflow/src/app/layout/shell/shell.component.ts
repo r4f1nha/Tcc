@@ -3,6 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { ToastContainerComponent } from '../../shared/components/toast/toast-container.component';
 import { AuthService } from '../../core/auth/services/auth.service';
+import { LayoutService } from '../layout.service';
 import { NgxSpinnerModule } from 'ngx-spinner';
 
 @Component({
@@ -14,7 +15,7 @@ import { NgxSpinnerModule } from 'ngx-spinner';
     <div class="wrapper">
       <app-sidebar />
 
-      <div class="main-panel" style="margin-left: 260px;">
+      <div class="main-panel" [style.margin-left]="layout.sidebarCollapsed() ? '68px' : '260px'">
         <div class="top-bar">
           <div class="search-input-wrapper d-none d-md-block">
             <i class="fas fa-search"></i>
@@ -73,6 +74,7 @@ import { NgxSpinnerModule } from 'ngx-spinner';
 })
 export class ShellComponent {
   private readonly authService = inject(AuthService);
+  readonly layout = inject(LayoutService);
   readonly user = this.authService.user;
 
   logout(): void {

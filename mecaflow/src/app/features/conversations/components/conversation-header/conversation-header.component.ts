@@ -43,12 +43,17 @@ import { Conversation, ConversationStatus } from '../../models/conversation.mode
         <!-- Mais opções dropdown -->
         <div class="position-relative">
           <button type="button" class="btn btn-sm btn-light" style="color:#6c757d;"
-            (click)="menuOpen.set(!menuOpen())" title="Mais opções">
+            (click)="onMenuToggle($event)" title="Mais opções">
             <i class="fas fa-ellipsis-v"></i>
           </button>
-          @if (menuOpen()) {
-            <div class="dropdown-menu show position-absolute"
-              style="right:0;top:100%;min-width:160px;z-index:1050;">
+          @if (menuOpen() && menuAnchor(); as anchor) {
+            <!-- overlay para fechar o menu -->
+            <div style="position:fixed;inset:0;z-index:1998;" (click)="menuOpen.set(false)"></div>
+            <div class="dropdown-menu show"
+              [style.position]="'fixed'"
+              [style.top.px]="anchor.top"
+              [style.right.px]="anchor.right"
+              style="min-width:170px;z-index:1999;box-shadow:0 4px 16px rgba(0,0,0,0.15);">
               @if (conversation().status === ConversationStatus.RESOLVED) {
                 <button type="button" class="dropdown-item" (click)="onReopen()">
                   <i class="fas fa-redo mr-2 text-primary"></i>Reabrir
@@ -60,9 +65,6 @@ import { Conversation, ConversationStatus } from '../../models/conversation.mode
                 </button>
               }
             </div>
-            <!-- overlay para fechar o menu -->
-            <div class="position-fixed" style="inset:0;z-index:1049;"
-              (click)="menuOpen.set(false)"></div>
           }
         </div>
       </div>
@@ -97,6 +99,7 @@ export class ConversationHeaderComponent {
 
   protected readonly ConversationStatus = ConversationStatus;
   readonly menuOpen = signal(false);
+  readonly menuAnchor = signal<{ top: number; right: number } | null>(null);
 
   get canAssign(): boolean {
     const s = this.conversation().status;
@@ -124,7 +127,14 @@ export class ConversationHeaderComponent {
   }
 
   getInitials(name: string): string {
-    return (name ?? '?').split(' ').slice(0, 2).map((n) => n[0]).join('').toUpperCase();
+    return (name || '?').split(' ').slice(0, 2).map((n) => n?.[0] ?? '').join('').toUpperCase() || '?';
+  }
+
+  onMenuToggle(event: MouseEvent): void {
+    const btn = event.currentTarget as HTMLElement;
+    const rect = btn.getBoundingClientRect();
+    this.menuAnchor.set({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+    this.menuOpen.set(!this.menuOpen());
   }
 
   onReopen(): void {

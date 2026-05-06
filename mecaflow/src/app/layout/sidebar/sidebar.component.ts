@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgClass } from '@angular/common';
 import { ThemeService } from '../../core/services/theme.service';
 import { AuthService } from '../../core/auth/services/auth.service';
+import { LayoutService } from '../layout.service';
 
 interface NavItem {
   readonly label: string;
@@ -78,8 +79,9 @@ interface NavSection {
 export class SidebarComponent {
   private readonly themeService = inject(ThemeService);
   private readonly authService = inject(AuthService);
+  private readonly layout = inject(LayoutService);
 
-  readonly collapsed = signal(false);
+  readonly collapsed = this.layout.sidebarCollapsed;
   readonly user = this.authService.user;
 
   readonly sections: ReadonlyArray<NavSection> = [
@@ -87,7 +89,7 @@ export class SidebarComponent {
       title: 'CRM',
       items: [
         { label: 'Dashboard',   route: '/dashboard',     icon: 'fas fa-tachometer-alt' },
-        { label: 'Conversas',   route: '/conversations', icon: 'fas fa-comments', badge: '3' },
+        { label: 'Conversas',   route: '/conversations', icon: 'fas fa-comments' },
         { label: 'Leads',       route: '/leads',         icon: 'fas fa-users' },
         { label: 'Kanban',      route: '/kanban',        icon: 'fas fa-columns' },
         { label: 'Agenda',      route: '/appointments',  icon: 'fas fa-calendar-alt' },

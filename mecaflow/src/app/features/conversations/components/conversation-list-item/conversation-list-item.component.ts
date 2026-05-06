@@ -28,7 +28,7 @@ import { TruncatePipe } from '../../../../shared/pipes/truncate.pipe';
       <div class="flex-grow-1 min-w-0">
         <div class="d-flex align-items-center justify-content-between mb-1">
           <span class="font-weight-600 text-truncate" style="font-size:0.83rem;color:#1a1a2e;max-width:150px;">
-            {{ conversation().leadName }}
+            {{ conversation().leadName || 'Desconhecido' }}
           </span>
           <small class="text-muted text-nowrap ml-1" style="font-size:0.7rem;">
             {{ conversation().lastMessageAt | timeAgo }}
@@ -106,11 +106,11 @@ export class ConversationListItemComponent {
   }
 
   getInitials(name: string): string {
-    return (name ?? '?')
+    return (name || '?')
       .split(' ')
       .slice(0, 2)
-      .map((n) => n[0])
+      .map((n) => n?.[0] ?? '')
       .join('')
-      .toUpperCase();
+      .toUpperCase() || '?';
   }
 }
