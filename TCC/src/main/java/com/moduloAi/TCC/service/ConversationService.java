@@ -12,6 +12,7 @@ import com.moduloAi.TCC.repository.ConversationRepository;
 import com.moduloAi.TCC.repository.LabelRepository;
 import com.moduloAi.TCC.repository.MessageRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,17 +33,20 @@ public class ConversationService {
     private final LabelRepository labelRepository;
     private final WahaApiService wahaApiService;
     private final StringRedisTemplate redisTemplate;
+    private final String botRedisKeyPrefix;
 
     public ConversationService(ConversationRepository conversationRepository,
                                MessageRepository messageRepository,
                                LabelRepository labelRepository,
                                WahaApiService wahaApiService,
-                               StringRedisTemplate redisTemplate) {
+                               StringRedisTemplate redisTemplate,
+                               @Value("${bot.redis-key-prefix}") String botRedisKeyPrefix) {
         this.conversationRepository = conversationRepository;
         this.messageRepository = messageRepository;
         this.labelRepository = labelRepository;
         this.wahaApiService = wahaApiService;
         this.redisTemplate = redisTemplate;
+        this.botRedisKeyPrefix = botRedisKeyPrefix;
     }
 
     public Conversation findOrCreateConversation(String wahaChatId, String leadName, String leadPhone, String session) {
@@ -205,7 +210,11 @@ public class ConversationService {
     }
 
     private String redisKey(String wahaChatId) {
-        return "CloudSolutions_" + wahaChatId + "_block";
+        // Remove sufixos WhatsApp para bater com o formato usado no N8N: {Botname}_{telefone}_block
+        String phone = wahaChatId
+                .replace("@c.us", "")
+                .replace("@s.whatsapp.net", "");
+        return botRedisKeyPrefix + "_" + phone + "_block";
     }
 
     private Conversation findById(Long id) {
