@@ -147,6 +147,7 @@ public class ConversationService {
         conversation.setAssignedAgentId(request.agentId());
         conversation.setAssignedAgentName(request.agentName());
         conversation.setStatus(Conversation.ConversationStatus.HUMAN);
+        redisTemplate.opsForValue().set(redisKey(conversation.getWahaChatId()), "true");
         return toResponse(conversationRepository.save(conversation));
     }
 
