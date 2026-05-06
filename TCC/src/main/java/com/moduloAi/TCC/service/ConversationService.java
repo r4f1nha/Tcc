@@ -45,14 +45,27 @@ public class ConversationService {
     }
 
     public Conversation findOrCreateConversation(String wahaChatId, String leadName, String leadPhone, String session) {
-        return conversationRepository.findByWahaChatId(wahaChatId).orElseGet(() -> {
-            Conversation c = new Conversation();
-            c.setWahaChatId(wahaChatId);
-            c.setLeadName(leadName);
-            c.setLeadPhone(leadPhone);
-            c.setSession(session);
-            return conversationRepository.save(c);
-        });
+        // Busca pelo chatId normalizado (@c.us)
+        Optional<Conversation> byChat = conversationRepository.findByWahaChatId(wahaChatId);
+        if (byChat.isPresent()) return byChat.get();
+
+        // Fallback: busca por telefone (cobre conversas antigas com @s.whatsapp.net)
+        Optional<Conversation> byPhone = conversationRepository.findTopByLeadPhoneOrderByCreatedAtDesc(leadPhone);
+        if (byPhone.isPresent()) {
+            Conversation existing = byPhone.get();
+            if (!wahaChatId.equals(existing.getWahaChatId())) {
+                existing.setWahaChatId(wahaChatId);
+                conversationRepository.save(existing);
+            }
+            return existing;
+        }
+
+        Conversation c = new Conversation();
+        c.setWahaChatId(wahaChatId);
+        c.setLeadName(leadName);
+        c.setLeadPhone(leadPhone);
+        c.setSession(session);
+        return conversationRepository.save(c);
     }
 
     public Message saveMessage(Conversation conversation, String content, Message.MessageType type,
