@@ -109,6 +109,8 @@ export const conversationReducer = createReducer(
     ConversationActions.transferSuccess,
     ConversationActions.resolveSuccess,
     ConversationActions.reopenSuccess,
+    ConversationActions.setHumanModeSuccess,
+    ConversationActions.setBotModeSuccess,
     ConversationActions.statusChanged,
     ConversationActions.conversationUpdated,
     (state, { conversation }) =>

@@ -122,6 +122,34 @@ export class ConversationEffects {
     ),
   );
 
+  readonly setHumanMode$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ConversationActions.setHumanMode),
+      switchMap(({ conversationId }) =>
+        this.conversationService.setHumanMode(conversationId).pipe(
+          map((conversation) => ConversationActions.setHumanModeSuccess({ conversation })),
+          catchError((error) =>
+            of(ConversationActions.loadConversationsFailure({ error: error.message })),
+          ),
+        ),
+      ),
+    ),
+  );
+
+  readonly setBotMode$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ConversationActions.setBotMode),
+      switchMap(({ conversationId }) =>
+        this.conversationService.setBotMode(conversationId).pipe(
+          map((conversation) => ConversationActions.setBotModeSuccess({ conversation })),
+          catchError((error) =>
+            of(ConversationActions.loadConversationsFailure({ error: error.message })),
+          ),
+        ),
+      ),
+    ),
+  );
+
   readonly connectSse$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ConversationActions.connectSSE),

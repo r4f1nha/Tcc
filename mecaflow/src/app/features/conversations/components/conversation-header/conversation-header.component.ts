@@ -64,6 +64,18 @@ import { Conversation, ConversationStatus } from '../../models/conversation.mode
                   <i class="fas fa-exchange-alt mr-2 text-secondary"></i>Transferir
                 </button>
               }
+              @if (conversation().status !== ConversationStatus.RESOLVED) {
+                <div class="dropdown-divider"></div>
+                @if (conversation().status === ConversationStatus.BOT) {
+                  <button type="button" class="dropdown-item" (click)="onBotToggle()">
+                    <i class="fas fa-robot mr-2" style="color:#c92a2a;"></i>Pausar bot
+                  </button>
+                } @else {
+                  <button type="button" class="dropdown-item" (click)="onBotToggle()">
+                    <i class="fas fa-robot mr-2" style="color:#2f9e44;"></i>Ativar bot
+                  </button>
+                }
+              }
             </div>
           }
         </div>
@@ -96,6 +108,7 @@ export class ConversationHeaderComponent {
   readonly transferClicked = output<void>();
   readonly resolveClicked = output<void>();
   readonly reopenClicked = output<void>();
+  readonly botToggleClicked = output<void>();
 
   protected readonly ConversationStatus = ConversationStatus;
   readonly menuOpen = signal(false);
@@ -147,5 +160,10 @@ export class ConversationHeaderComponent {
   onTransfer(): void {
     this.menuOpen.set(false);
     this.transferClicked.emit();
+  }
+
+  onBotToggle(): void {
+    this.menuOpen.set(false);
+    this.botToggleClicked.emit();
   }
 }

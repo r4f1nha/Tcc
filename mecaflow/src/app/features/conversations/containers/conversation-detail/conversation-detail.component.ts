@@ -16,7 +16,7 @@ import {
   selectSelectedConversation,
   selectTypingIndicators,
 } from '../../store/selectors/conversation.selectors';
-import { ConversationStatus, SendMessagePayload } from '../../models/conversation.model';
+import { Conversation, ConversationStatus, SendMessagePayload } from '../../models/conversation.model';
 import { ConversationHeaderComponent } from '../../components/conversation-header/conversation-header.component';
 import { MessageBubbleComponent } from '../../components/message-bubble/message-bubble.component';
 import { MessageInputComponent } from '../../components/message-input/message-input.component';
@@ -42,6 +42,7 @@ import { AuthService } from '../../../../core/auth/services/auth.service';
           (transferClicked)="onTransfer()"
           (resolveClicked)="onResolve()"
           (reopenClicked)="onReopen()"
+          (botToggleClicked)="onBotToggle()"
         />
 
         <!-- Messages -->
@@ -149,6 +150,16 @@ export class ConversationDetailComponent {
       this.store.dispatch(
         ConversationActions.reopenConversation({ conversationId: conv.id }),
       );
+    }
+  }
+
+  onBotToggle(): void {
+    const conv = this.conversation() as Conversation | undefined;
+    if (!conv) return;
+    if (conv.status === ConversationStatus.BOT) {
+      this.store.dispatch(ConversationActions.setHumanMode({ conversationId: conv.id }));
+    } else {
+      this.store.dispatch(ConversationActions.setBotMode({ conversationId: conv.id }));
     }
   }
 

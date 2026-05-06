@@ -43,6 +43,11 @@ export const ConversationActions = createActionGroup({
     'Add Label': props<{ conversationId: string; labelId: string }>(),
     'Remove Label': props<{ conversationId: string; labelId: string }>(),
 
+    'Set Human Mode': props<{ conversationId: string }>(),
+    'Set Human Mode Success': props<{ conversation: Conversation }>(),
+    'Set Bot Mode': props<{ conversationId: string }>(),
+    'Set Bot Mode Success': props<{ conversation: Conversation }>(),
+
     // SSE real-time
     'Connect SSE': emptyProps(),
 

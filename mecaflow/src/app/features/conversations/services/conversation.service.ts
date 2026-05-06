@@ -87,4 +87,12 @@ export class ConversationService {
       `${this.API}/${conversationId}/labels/${labelId}`,
     );
   }
+
+  setHumanMode(conversationId: string): Observable<Conversation> {
+    return this.http.patch<Conversation>(`${this.API}/${conversationId}/human`, {});
+  }
+
+  setBotMode(conversationId: string): Observable<Conversation> {
+    return this.http.patch<Conversation>(`${this.API}/${conversationId}/bot`, {});
+  }
 }
