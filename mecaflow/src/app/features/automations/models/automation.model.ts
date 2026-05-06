@@ -1,8 +1,6 @@
 export enum AutomationEvent {
   MESSAGE_RECEIVED = 'MESSAGE_RECEIVED',
   CONVERSATION_CREATED = 'CONVERSATION_CREATED',
-  CONVERSATION_UPDATED = 'CONVERSATION_UPDATED',
-  CONVERSATION_OPENED = 'CONVERSATION_OPENED',
   CONVERSATION_RESOLVED = 'CONVERSATION_RESOLVED',
 }
 
@@ -10,7 +8,6 @@ export enum ConditionAttribute {
   MESSAGE_CONTENT = 'MESSAGE_CONTENT',
   LABEL = 'LABEL',
   CONVERSATION_STATUS = 'CONVERSATION_STATUS',
-  ASSIGNED_AGENT = 'ASSIGNED_AGENT',
 }
 
 export enum ConditionOperator {
@@ -66,8 +63,6 @@ export interface AutomationLog {
 export const EVENT_LABELS: Record<AutomationEvent, string> = {
   [AutomationEvent.MESSAGE_RECEIVED]: 'Mensagem recebida',
   [AutomationEvent.CONVERSATION_CREATED]: 'Conversa criada',
-  [AutomationEvent.CONVERSATION_UPDATED]: 'Conversa atualizada',
-  [AutomationEvent.CONVERSATION_OPENED]: 'Conversa aberta',
   [AutomationEvent.CONVERSATION_RESOLVED]: 'Conversa resolvida',
 };
 
@@ -75,7 +70,6 @@ export const CONDITION_ATTRIBUTE_LABELS: Record<ConditionAttribute, string> = {
   [ConditionAttribute.MESSAGE_CONTENT]: 'Conteúdo da mensagem',
   [ConditionAttribute.LABEL]: 'Etiqueta',
   [ConditionAttribute.CONVERSATION_STATUS]: 'Status da conversa',
-  [ConditionAttribute.ASSIGNED_AGENT]: 'Agente atribuído',
 };
 
 export const CONDITION_OPERATOR_LABELS: Record<ConditionOperator, string> = {

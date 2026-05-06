@@ -52,7 +52,7 @@ import { Conversation, ConversationStatus } from '../../models/conversation.mode
             <div class="dropdown-menu show"
               [style.position]="'fixed'"
               [style.top.px]="anchor.top"
-              [style.right.px]="anchor.right"
+              [style.left.px]="anchor.left"
               style="min-width:170px;z-index:1999;box-shadow:0 4px 16px rgba(0,0,0,0.15);">
               @if (conversation().status === ConversationStatus.RESOLVED) {
                 <button type="button" class="dropdown-item" (click)="onReopen()">
@@ -99,7 +99,7 @@ export class ConversationHeaderComponent {
 
   protected readonly ConversationStatus = ConversationStatus;
   readonly menuOpen = signal(false);
-  readonly menuAnchor = signal<{ top: number; right: number } | null>(null);
+  readonly menuAnchor = signal<{ top: number; left: number } | null>(null);
 
   get canAssign(): boolean {
     const s = this.conversation().status;
@@ -133,7 +133,9 @@ export class ConversationHeaderComponent {
   onMenuToggle(event: MouseEvent): void {
     const btn = event.currentTarget as HTMLElement;
     const rect = btn.getBoundingClientRect();
-    this.menuAnchor.set({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+    const dropdownWidth = 170;
+    const left = Math.max(8, Math.min(rect.right - dropdownWidth, window.innerWidth - dropdownWidth - 8));
+    this.menuAnchor.set({ top: rect.bottom + 4, left });
     this.menuOpen.set(!this.menuOpen());
   }
 

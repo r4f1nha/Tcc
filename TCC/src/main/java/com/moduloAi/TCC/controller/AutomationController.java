@@ -34,7 +34,7 @@ public class AutomationController {
         return automationService.create(request);
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public AutomationResponse update(@PathVariable Long id,
                                      @Valid @RequestBody AutomationRequest request) {
         return automationService.update(id, request);
