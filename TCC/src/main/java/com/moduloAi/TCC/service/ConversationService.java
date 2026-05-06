@@ -114,8 +114,16 @@ public class ConversationService {
 
     public MessageResponse sendMessage(Long conversationId, String content) {
         Conversation conversation = findById(conversationId);
-        wahaApiService.sendText(conversation.getWahaChatId(), content);
-        Message saved = saveMessage(conversation, content, Message.MessageType.TEXT, "Agente", false, null, null);
+        String wahaMessageId = wahaApiService.sendText(conversation.getWahaChatId(), content);
+        Message saved = saveMessage(conversation, content, Message.MessageType.TEXT, "Agente", false, null, wahaMessageId);
+
+        // Bloqueia o bot no Redis sempre que um agente envia mensagem pelo sistema
+        if (conversation.getStatus() != Conversation.ConversationStatus.HUMAN) {
+            conversation.setStatus(Conversation.ConversationStatus.HUMAN);
+            conversationRepository.save(conversation);
+        }
+        redisTemplate.opsForValue().set(redisKey(conversation.getWahaChatId()), "true");
+
         return toMessageResponse(saved);
     }
 

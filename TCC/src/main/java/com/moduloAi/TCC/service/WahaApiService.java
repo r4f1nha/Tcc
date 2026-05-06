@@ -24,17 +24,21 @@ public class WahaApiService {
                 .build();
     }
 
-    public void sendText(String chatId, String text) {
+    @SuppressWarnings("unchecked")
+    public String sendText(String chatId, String text) {
         Map<String, Object> body = Map.of(
                 "session", session,
                 "chatId", chatId,
                 "text", text
         );
-        webClient.post()
+        Map<String, Object> response = (Map<String, Object>) webClient.post()
                 .uri("/api/sendText")
                 .bodyValue(body)
                 .retrieve()
-                .bodyToMono(Void.class)
+                .bodyToMono(Map.class)
                 .block();
+        if (response == null) return null;
+        Object id = response.get("id");
+        return id != null ? id.toString() : null;
     }
 }
