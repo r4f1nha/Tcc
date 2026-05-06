@@ -35,9 +35,9 @@ import { SkeletonComponent } from '../../../../shared/components/skeleton/skelet
       </div>
     </div>
 
-    <div class="d-flex border rounded" style="height: calc(100vh - 180px); min-height: 400px; overflow: hidden; background: #fff;">
+    <div class="d-flex border rounded" style="height: calc(100vh - 160px); overflow: hidden; background: #fff;">
       <!-- Lista de conversas -->
-      <div class="border-right bg-white d-flex flex-column" style="width:320px; min-width:280px; flex-shrink:0;">
+      <div class="border-right bg-white d-flex flex-column" style="width:300px; flex-shrink:0; overflow:hidden;">
         <!-- Pesquisa -->
         <div class="p-2 border-bottom">
           <div class="input-group input-group-sm">

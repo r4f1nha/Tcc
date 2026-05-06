@@ -53,6 +53,7 @@ body {
 .content-wrapper {
   padding: 1.5rem;
   min-height: calc(100vh - 56px - 50px);
+  overflow-x: hidden;
 }
 
 // =============================================
